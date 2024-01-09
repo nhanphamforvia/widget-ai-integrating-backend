@@ -1,34 +1,37 @@
+const openAIClient = require("../openAIConnect");
 const catchAsync = require("../utils/catchAsync");
 
 exports.chatCompletion = catchAsync(async (req, res, next) => {
-  const endpoint = `${process.env.OPEN_API_BASE}/openai/deployments/${process.env.OPEN_API_DEPLOYMENT_NAME}/completions?api-version=${process.env.OPEN_API_VERSION}`;
+  const deploymentName = process.env.OPEN_API_DEPLOYMENT_NAME;
+  const { sysContent, userContent } = req.body;
 
-  const headers = {
-    "Content-Type": "application/json",
-    "api-key": process.env.OPEN_API_KEY,
-  };
+  if (sysContent == null || userContent == null) {
+    return res.status(400).json({
+      status: "fail",
+      message: "Need to have both system content and user content for chat completions!",
+    });
+  }
 
-  const data = {
-    prompt: `${req.body.content}`,
-    max_tokens: 1000,
-  };
+  const result = await openAIClient.getChatCompletions(deploymentName, [
+    {
+      role: "system",
+      content: sysContent,
+    },
+    {
+      role: "user",
+      content: userContent,
+    },
+  ]);
 
-  const fetchRes = await fetch(endpoint, {
-    headers,
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-
-  console.log(fetchRes);
-
-  const fetchData = await fetchRes.json();
-
-  console.log("\nprompt: " + req.body.content + "\n");
-  console.log(fetchData);
-  console.log("\nresult: " + fetchData.choices?.[0]?.text);
+  if (result.choices == null) {
+    return res.status(400).json({
+      status: "fail",
+      message: `Failed to complete the chat for: ${content}`,
+    });
+  }
 
   res.status(200).json({
     status: "success",
-    data: fetchData,
+    data: result.choices.map((choice) => choice.message.content),
   });
 });

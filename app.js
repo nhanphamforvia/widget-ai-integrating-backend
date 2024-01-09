@@ -10,6 +10,8 @@ const openaiRoutes = require("./routes/openAIRoutes");
 const app = express();
 
 // Security
+app.set("trust proxy", true);
+
 app.use(
   cors({
     origin: ["https://almt.hella.com", "https://alm.hella.com"],

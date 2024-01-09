@@ -19,10 +19,13 @@ exports.chatCompletion = catchAsync(async (req, res, next) => {
     body: JSON.stringify(data),
   });
 
+  console.log(fetchRes);
+
   const fetchData = await fetchRes.json();
 
-  console.log("prompt: " + req.body.content);
-  console.log("result: " + fetchData.choices?.[0]?.text);
+  console.log("\nprompt: " + req.body.content + "\n");
+  console.log(fetchData);
+  console.log("\nresult: " + fetchData.choices?.[0]?.text);
 
   res.status(200).json({
     status: "success",

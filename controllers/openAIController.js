@@ -1,6 +1,6 @@
 const catchAsync = require("../utils/catchAsync");
 
-exports.chatCompletions = catchAsync(async (req, res, next) => {
+exports.chatCompletion = catchAsync(async (req, res, next) => {
   const endpoint = `${process.env.OPEP_API_BASE}/openai/deployments/${process.env.OPEN_API_DEPLOYMENT_NAME}/completions?api-version=${process.env.CHAT_COMPLETION_API_VERSION}`;
 
   const headers = {
@@ -12,7 +12,7 @@ exports.chatCompletions = catchAsync(async (req, res, next) => {
 
   const data = {
     prompt: `${req.body.content}`,
-    max_tokens: 4000,
+    max_tokens: 1000,
   };
 
   const fetchRes = await fetch(endpoint, {

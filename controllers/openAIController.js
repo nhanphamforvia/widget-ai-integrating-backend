@@ -1,7 +1,7 @@
 const catchAsync = require("../utils/catchAsync");
 
 exports.chatCompletion = catchAsync(async (req, res, next) => {
-  const endpoint = `${process.env.OPEP_API_BASE}/openai/deployments/${process.env.OPEN_API_DEPLOYMENT_NAME}/completions?api-version=${process.env.CHAT_COMPLETION_API_VERSION}`;
+  const endpoint = `${process.env.OPEN_API_BASE}/openai/deployments/${process.env.OPEN_API_DEPLOYMENT_NAME}/completions?api-version=${process.env.OPEN_API_VERSION}`;
 
   const headers = {
     "Content-Type": "application/json",

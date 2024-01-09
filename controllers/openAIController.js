@@ -8,8 +8,6 @@ exports.chatCompletion = catchAsync(async (req, res, next) => {
     "api-key": process.env.OPEN_API_KEY,
   };
 
-  console.log(req.body.content);
-
   const data = {
     prompt: `${req.body.content}`,
     max_tokens: 1000,
@@ -22,6 +20,9 @@ exports.chatCompletion = catchAsync(async (req, res, next) => {
   });
 
   const fetchData = await fetchRes.json();
+
+  console.log("prompt: " + req.body.content);
+  console.log("result: " + fetchData.choices?.[0]?.text);
 
   res.status(200).json({
     status: "success",

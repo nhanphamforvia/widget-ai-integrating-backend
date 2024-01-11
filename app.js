@@ -6,6 +6,8 @@ const compression = require("compression");
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
 const openaiRoutes = require("./routes/openAIRoutes");
+const translatorRoutes = require("./routes/translatorRoutes");
+const docIntelRoutes = require("./routes/docIntelRoutes");
 
 const app = express();
 
@@ -35,6 +37,8 @@ app.use(compression());
 
 // Routes
 app.use("/api/v1/openai", openaiRoutes);
+app.use("/api/v1/translator", translatorRoutes);
+app.use("/api/v1/docIntel", docIntelRoutes);
 
 app.use("*", (req, res, next) => {
   next(new AppError(`No routes found at ${req.originalUrl}`, 400));

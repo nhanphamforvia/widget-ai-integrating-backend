@@ -35,6 +35,14 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(compression());
 
+// Test route
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "success",
+    message: "Hello world!",
+  });
+});
+
 // Routes
 app.use("/api/v1/openai", openaiRoutes);
 app.use("/api/v1/translator", translatorRoutes);

@@ -5,7 +5,7 @@ const TEMP = 0.0;
 
 exports.chatCompletion = catchAsync(async (req, res, next) => {
   const deploymentName = process.env.OPEN_API_DEPLOYMENT_NAME;
-  const { sysContent, userContent } = req.body;
+  const { sysContent, userContent, temperature = TEMP } = req.body;
 
   if (sysContent == null || userContent == null) {
     return res.status(400).json({
@@ -25,7 +25,7 @@ exports.chatCompletion = catchAsync(async (req, res, next) => {
     },
   ];
 
-  const result = await openAIClient.getChatCompletions(deploymentName, messages, { temperature: TEMP });
+  const result = await openAIClient.getChatCompletions(deploymentName, messages, { temperature });
 
   if (result.choices == null) {
     return res.status(400).json({

@@ -44,8 +44,9 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api-trusted", (req, res) => {
-  res.status(200).send(`<div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100vh;">
-    <p>The API is trusted. You can now close this window to proceed.</p>
+  res.status(200).send(`<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; height: 100vh;">
+    <div>The API is trusted. You can now close this window to proceed.</div>
+    <p><i>Production Server Response</i></p>
   </div>`);
 });
 

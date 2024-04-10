@@ -2,3 +2,5 @@
 node_modules
 server.cert
 server.key
+server.pfx
+server.pass

@@ -3,8 +3,8 @@ const fs = require("fs");
 const dotenv = require("dotenv");
 
 const options = {
-  key: fs.readFileSync("server.key"),
-  cert: fs.readFileSync("server.cert"),
+  pfx: fs.readFileSync("server.pfx"),
+  passphrase: fs.readFileSync("server.pass", "utf8").trim(),
 };
 
 process.on("uncaughtException", (err) => {

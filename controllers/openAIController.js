@@ -1,7 +1,15 @@
 const openAIClient = require("../openAIConnect");
+const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
+const { useMachineState, checkBusy, checkMachineState } = require("./machineStateFactory");
 
 const TEMP = 0.0;
+
+// State Machine variables
+const [serviceState, isServiceBusy, userOccupyService, getCurrentServiceUserId] = useMachineState();
+
+exports.checkBusy = checkBusy(isServiceBusy, getCurrentServiceUserId);
+exports.checkMachineState = checkMachineState(isServiceBusy, userOccupyService);
 
 exports.chatCompletion = catchAsync(async (req, res, next) => {
   const deploymentName = process.env.OPEN_API_DEPLOYMENT_NAME;
@@ -25,17 +33,18 @@ exports.chatCompletion = catchAsync(async (req, res, next) => {
     },
   ];
 
-  const result = await openAIClient.getChatCompletions(deploymentName, messages, { temperature });
+  try {
+    const result = await openAIClient.getChatCompletions(deploymentName, messages, { temperature });
 
-  if (result.choices == null) {
-    return res.status(400).json({
-      status: "fail",
-      message: `Failed to complete the chat for: ${content}`,
+    if (result.choices == null) {
+      next(new AppError(`Failed to complete the chat for: ${content}`, 400))
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: result.choices.map((choice) => choice.message.content),
     });
+  } catch (err) {
+    next(err)
   }
-
-  res.status(200).json({
-    status: "success",
-    data: result.choices.map((choice) => choice.message.content),
-  });
 });

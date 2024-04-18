@@ -22,13 +22,13 @@ exports.getSession = catchAsync(async (req, res, next) => {
 });
 
 exports.createSession = catchAsync(async (req, res, next) => {
-    const { body: { userId, tool } } = req
+    const { body: { userId, tool, status, origin } } = req
 
     if (userId == null) {
         throw new Error("UserID is required")
     }
-
-    const newSession = createSession({ userId, tool })
+    
+    const newSession = createSession({ userId, tool, status, origin })
 
     res.status(201).json({
         status: "success",

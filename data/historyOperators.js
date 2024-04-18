@@ -20,6 +20,8 @@ const STATUS = {
     DENIED: "denied"
 }
 
+exports.STATUS = STATUS
+
 exports.getSessions = (query) => {
     const queryObj = Object.entries(query).filter(([key, _]) => FILTER_QUERY_FIELDS.includes(key))
     const historyData = readDb()
@@ -41,7 +43,7 @@ exports.getSession = (sessionId) => {
     return session
 }
 
-exports.createSession = ({ userId, tool = "unknown" }) => {
+exports.createSession = ({ userId, origin, status = STATUS.PENDING, tool = "unknown",  }) => {
     if (userId == null) throw new Error("UserId is not defined")
 
     const historyData = readDb()    
@@ -51,9 +53,22 @@ exports.createSession = ({ userId, tool = "unknown" }) => {
         userId,
         createdAt: new Date().toISOString(),
         finishedAt: null,
-        status: STATUS.PENDING,
-        tool
+        status: status || STATUS.PENDING,
+        tool,
+        origin,
     }
+
+    if (status === STATUS.DENIED || status === STATUS.ERROR || status === STATUS.SUCCESS) {
+        session.finishedAt = new Date().toISOString()
+    }
+
+    const isValidStatus = Object.values(STATUS).some(allowedValue => {
+        return status === allowedValue
+    })
+
+    if (!isValidStatus) throw new Error("Invalid Status");
+
+    session.status = status;
 
     historyData.sessions.push(session)
     writeDb(historyData)

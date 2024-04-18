@@ -1,11 +1,27 @@
 {
   "sessions": [
     {
-      "id": "64fb528a-49ac-4012-a1ae-6ad6cc63fc03",
+      "id": "818f7b39-76da-4f54-b780-75cbe78deaaf",
       "userId": "phamth7",
-      "createdAt": "2024-04-18T14:06:48.996Z",
-      "finishedAt": "2024-04-18T14:07:23.483Z",
+      "createdAt": "2024-04-18T14:27:57.049Z",
+      "finishedAt": "2024-04-18T14:27:57.049Z",
       "status": "denied",
+      "tool": "unknown"
+    },
+    {
+      "id": "9b11a2af-4349-4079-8cfa-f74ec5b8ac1b",
+      "userId": "phamth7",
+      "createdAt": "2024-04-18T14:29:06.312Z",
+      "finishedAt": "2024-04-18T14:29:06.312Z",
+      "status": "denied",
+      "tool": "unknown"
+    },
+    {
+      "id": "194b1085-3760-4e40-a8a6-7b2d877db459",
+      "userId": "phamth7",
+      "createdAt": "2024-04-18T14:39:27.484Z",
+      "finishedAt": "2024-04-18T14:40:07.310Z",
+      "status": "success",
       "tool": "unknown"
     }
   ]

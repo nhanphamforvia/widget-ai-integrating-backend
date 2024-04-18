@@ -8,6 +8,7 @@ const globalErrorHandler = require("./controllers/errorController");
 const openaiRoutes = require("./routes/openAIRoutes");
 const translatorRoutes = require("./routes/translatorRoutes");
 const docIntelRoutes = require("./routes/docIntelRoutes");
+const historyRoutes = require("./routes/historyRoutes");
 
 const app = express();
 
@@ -16,7 +17,7 @@ app.set("trust proxy", true);
 
 app.use(
   cors({
-    origin: ["https://almt.hella.com", "https://alm.hella.com"],
+    origin: ["https://almt.hella.com", "https://alm.hella.com", "api.cognitive.microsofttranslator.com"],
     credentials: true,
   })
 );
@@ -24,7 +25,7 @@ app.use(
 app.options(
   "*",
   cors({
-    origin: ["https://almt.hella.com", "https://alm.hella.com"],
+    origin: ["https://almt.hella.com", "https://alm.hella.com", "api.cognitive.microsofttranslator.com"],
   })
 );
 
@@ -54,6 +55,8 @@ app.get("/api-trusted", (req, res) => {
 app.use("/api/v1/openai", openaiRoutes);
 app.use("/api/v1/translator", translatorRoutes);
 app.use("/api/v1/docIntel", docIntelRoutes);
+app.use("/api/v1/history", historyRoutes)
+
 
 app.use("*", (req, res, next) => {
   next(new AppError(`No routes found at ${req.originalUrl}`, 400));

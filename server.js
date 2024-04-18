@@ -9,10 +9,11 @@ const options = {
 
 process.on("uncaughtException", (err) => {
   console.log("UNCAUGHT EXCEPTION! Shutting down server...");
+  console.error(err)
   console.log(err.message);
 });
 
-dotenv.config({ path: `./config.env` });
+dotenv.config({ path: "./config.env" });
 const app = require("./app");
 
 const port = process.env.PORT || 8080;

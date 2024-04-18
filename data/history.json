@@ -1,0 +1,12 @@
+{
+  "sessions": [
+    {
+      "id": "64fb528a-49ac-4012-a1ae-6ad6cc63fc03",
+      "userId": "phamth7",
+      "createdAt": "2024-04-18T14:06:48.996Z",
+      "finishedAt": "2024-04-18T14:07:23.483Z",
+      "status": "denied",
+      "tool": "unknown"
+    }
+  ]
+}

@@ -6,9 +6,9 @@ const { useMachineState, checkBusy, checkMachineState } = require("./machineStat
 const TEMP = 0.0;
 
 // State Machine variables
-const [serviceState, isServiceBusy, userOccupyService, getCurrentServiceUserId] = useMachineState();
+const [_, isServiceBusy, userOccupyService, getCurrentServiceUserId] = useMachineState();
 
-exports.checkBusy = checkBusy(isServiceBusy, getCurrentServiceUserId);
+exports.checkBusy = checkBusy(isServiceBusy, getCurrentServiceUserId, "OpenAI");
 exports.checkMachineState = checkMachineState(isServiceBusy, userOccupyService);
 
 exports.chatCompletion = catchAsync(async (req, res, next) => {

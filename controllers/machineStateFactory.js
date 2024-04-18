@@ -1,11 +1,11 @@
 const catchAsync = require("../utils/catchAsync");
 
 const MACHINE_STATES = {
-    IDLE: "idle",
-    BUSY: "busy",
-  };
+  IDLE: "idle",
+  BUSY: "busy",
+};
   
-  const RESET_MACHINE_STATE_DELAY = 60000;
+const RESET_MACHINE_STATE_DELAY = 30000;
 
 exports.useMachineState = () => {
   const machineState = {
@@ -41,7 +41,7 @@ exports.useMachineState = () => {
   return [machineState, isMachineBusy, occupyMachine, getCurrentUserId];
 };
   
-exports.checkBusy = (isMachineBusy, getCurrentUserId) => catchAsync(async (req, res, next) => {
+exports.checkBusy = (isMachineBusy, getCurrentUserId, serviceName) => catchAsync(async (req, res, next) => {
   const { userId } = req.user;
 
   if (userId == null) {
@@ -55,7 +55,7 @@ exports.checkBusy = (isMachineBusy, getCurrentUserId) => catchAsync(async (req, 
   if (isMachineBusy(userId)) {
     res.status(200).json({
       status: "success",
-      message: "The server is busy. Please try again later!",
+      message: `The server with ${serviceName} is busy. Please try again later!`,
       data: {
         blockedByStateMachine: true,
         currentUserId: getCurrentUserId(),

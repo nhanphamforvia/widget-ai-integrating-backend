@@ -1,12 +1,16 @@
-const { isUnexpected } = require("@azure-rest/ai-translation-text");
+const fs = require('fs');
 
+const { isUnexpected } = require("@azure-rest/ai-translation-text");
 const translatorClient = require("../translatorConnect");
 const catchAsync = require("../utils/catchAsync");
 const { useMachineState, checkBusy, checkMachineState } = require("./machineStateFactory");
+const [_, isServiceBusy, userOccupyService, getCurrentServiceUserId] = useMachineState();
 
-const [serviceState, isServiceBusy, userOccupyService, getCurrentServiceUserId] = useMachineState();
+const languagesPath = './data/languages.json'
+const languagesJSON = fs.readFileSync(languagesPath, 'utf8');
+const languagesData = JSON.parse(languagesJSON); 
 
-exports.checkBusy = checkBusy(isServiceBusy, getCurrentServiceUserId);
+exports.checkBusy = checkBusy(isServiceBusy, getCurrentServiceUserId, "Translator");
 exports.checkMachineState = checkMachineState(isServiceBusy, userOccupyService);
 
 exports.translate = catchAsync(async (req, res, next) => {
@@ -44,6 +48,17 @@ exports.translate = catchAsync(async (req, res, next) => {
     res.status(200).json({
       status: "success",
       data: translations
+    });
+  } catch (err) {
+    next(err)
+  }
+});
+
+exports.fetchLanguages = catchAsync(async (req, res, next) => {
+  try {
+    res.status(200).json({
+      status: "success",
+      data: languagesData,
     });
   } catch (err) {
     next(err)

@@ -1,17 +1,12 @@
-const fs = require('fs')
 const crypto = require('crypto');
+const path = require('path');
+const Database = require('./Database');
+const moment = require('moment');
 
-const historyPath = "./data/history.json"
-const FILTER_QUERY_FIELDS = ["userId", "id"]
+const FILTER_QUERY_FIELDS = new Set(["clientId", "id", "status"]);
+const SELECT_FIELDS = new Set(["clientId", "id", "status", "createdAt", "finishedAt", "tool"]);
 
-const readDb = () => {
-    const historyJson = fs.readFileSync(historyPath, 'utf8');
-    return JSON.parse(historyJson)
-}
-
-const writeDb = (newData) => {
-    fs.writeFileSync(historyPath, JSON.stringify(newData, null, 2), 'utf8');
-}
+const historyDb = new Database(path.resolve(__dirname, 'history.json'));
 
 const STATUS = {
     PENDING: "pending",
@@ -19,22 +14,73 @@ const STATUS = {
     ERROR: "error",
     DENIED: "denied"
 }
-
 exports.STATUS = STATUS
 
-exports.getSessions = (query) => {
-    const queryObj = Object.entries(query).filter(([key, _]) => FILTER_QUERY_FIELDS.includes(key))
-    const historyData = readDb()
+const isValidStatus = (status) => Object.values(STATUS).some(allowedValue => {
+    return status === allowedValue
+})
 
-    return historyData?.sessions.filter(item => {
-        return queryObj.every(([key, value]) => {
-            return item[key] == value
-        })
-    }); 
+const getQueryObject = (query) => {
+    return Object.entries(query).filter(([key, _]) => FILTER_QUERY_FIELDS.has(key));
 }
 
-exports.getSession = (sessionId) => {
-    const historyData = readDb()
+const filterSessions = (sessions, queryObj) => {
+    return sessions.filter(session => {
+        return queryObj.every(([key, value]) => session[key] == value);
+    });
+}
+
+const selectFieldsFromSessions = (sessions, select) => {
+    const selectFields = select.split(',').filter(field => SELECT_FIELDS.has(field));
+
+    return sessions.map(session => {
+        return selectFields.reduce((obj, field) => {
+            if (session[field]) {
+                obj[field] = session[field];
+            }
+            return obj;
+        }, {});
+    });
+}
+
+const filterSessionsByDate = (sessions, dateField, targetDateStr) => {
+    const targetDate = new Date(targetDateStr);
+
+    return sessions.filter(session => {
+        if (!session[dateField]) return false;
+        const sessionDate = new Date(session[dateField]);
+        return moment(targetDate).isSame(sessionDate, 'day')
+    });
+}
+
+exports.getSessions = async (query) => {
+    const { start, end, status, select } = query;
+
+    if (status && !isValidStatus(status)) {
+        throw new Error("Invalid status query!");
+    }
+
+    const historyData = await historyDb.read();
+    const queryObj = getQueryObject(query);
+    let filteredHistoryData = filterSessions(historyData?.sessions, queryObj);
+
+    if (select) {
+        filteredHistoryData = selectFieldsFromSessions(filteredHistoryData, select);
+    }
+
+    if (end) {
+        filteredHistoryData = filterSessionsByDate(filteredHistoryData, 'finishedAt', end);
+    }
+
+    if (start) {
+        filteredHistoryData = filterSessionsByDate(filteredHistoryData, 'createdAt', start);
+    }
+
+    return filteredHistoryData;
+}
+
+exports.getSession = async (sessionId) => {
+    const historyData = await historyDb.read()
 
     const session = historyData?.sessions.find(session => {
         return session.id === sessionId
@@ -43,14 +89,14 @@ exports.getSession = (sessionId) => {
     return session
 }
 
-exports.createSession = ({ userId, origin, status = STATUS.PENDING, tool = "unknown",  }) => {
-    if (userId == null) throw new Error("UserId is not defined")
+exports.createSession = async ({ clientId, origin, status = STATUS.PENDING, tool = "unknown",  }) => {
+    if (clientId == null) throw new Error("Random ClientID is not defined")
 
-    const historyData = readDb()    
+    const historyData = await historyDb.read()    
 
     const session = {
         id: crypto.randomUUID(),
-        userId,
+        clientId,
         createdAt: new Date().toISOString(),
         finishedAt: null,
         status: status || STATUS.PENDING,
@@ -62,22 +108,18 @@ exports.createSession = ({ userId, origin, status = STATUS.PENDING, tool = "unkn
         session.finishedAt = new Date().toISOString()
     }
 
-    const isValidStatus = Object.values(STATUS).some(allowedValue => {
-        return status === allowedValue
-    })
-
-    if (!isValidStatus) throw new Error("Invalid Status");
+    if (!isValidStatus(status)) throw new Error("Invalid Status");
 
     session.status = status;
 
     historyData.sessions.push(session)
-    writeDb(historyData)
+    historyDb.scheduleWrite()
 
     return session
 }
 
-exports.updateSession = (sessionId, { status = null }) => {
-    const historyData = readDb()
+exports.updateSession = async (sessionId, { status = null }) => {
+    const historyData = await historyDb.read()
 
     const session = historyData.sessions.find(session => {
         return session.id === sessionId;
@@ -87,22 +129,25 @@ exports.updateSession = (sessionId, { status = null }) => {
         session.finishedAt = new Date().toISOString()
     }
 
-    const isValidStatus = Object.values(STATUS).some(allowedValue => {
-        return status === allowedValue
-    })
+    if (status) {
+        const isValidStatus = Object.values(STATUS).some(allowedValue => {
+            return status === allowedValue
+        })
+    
+        if (!isValidStatus) throw new Error("Invalid Status");
+    
+        session.status = status;
+    }
 
-    if (!isValidStatus) throw new Error("Invalid Status");
-
-    session.status = status;
-    writeDb(historyData)
+    historyDb.scheduleWrite()
 
     return session
 }
 
-exports.deleteSession = (sessionId) => {
-    const historyData = readDb()
+exports.deleteSession = async (sessionId) => {
+    const historyData = await historyDb.read()
     
     historyData.sessions = historyData.sessions.filter(session => session.id !== sessionId)
 
-    writeDb(historyData)
+    historyDb.scheduleWrite()
 }

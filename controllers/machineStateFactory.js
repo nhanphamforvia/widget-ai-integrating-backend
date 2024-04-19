@@ -1,5 +1,6 @@
 const catchAsync = require("../utils/catchAsync");
-const { updateSession, createSession, getSession, STATUS, deleteSession } = require('../data/historyOperators') 
+const { updateSession, createSession, deleteSession, STATUS } = require('../data/historyOperators'); 
+const AppError = require("../utils/appError");
 
 const MACHINE_STATES = {
   IDLE: "idle",
@@ -11,32 +12,34 @@ const RESET_MACHINE_STATE_DELAY = 15000;
 exports.useMachineState = () => {
   const machineState = {
     state: MACHINE_STATES.IDLE,
-    currentUserId: null,
+    currentClientId: null,
     idleTimer: null,
     session: null, 
   };
 
-  const resetMachineState = () => {
-    if (machineState.currentUserId === machineState.session.userId) {
-      updateSession(machineState.session.id, { status: STATUS.SUCCESS })
+  const resetMachineState = async () => {
+    if (machineState.currentClientId === machineState.session.clientId) {
+      await updateSession(machineState.session.id, { status: STATUS.SUCCESS })
     }
 
     machineState.state = MACHINE_STATES.IDLE;
     machineState.idleTimer = null;
-    machineState.currentUserId = null;
+    machineState.currentClientId = null;
+    machineState.session = null
   };
 
-  const occupyMachine = (userId, resetTime = RESET_MACHINE_STATE_DELAY) => {
+  const occupyMachine = async (clientId, resetTime = RESET_MACHINE_STATE_DELAY) => {
     if (machineState.session == null) {
-      machineState.session = createSession({
-        userId,
+      machineState.session = await createSession({
+        clientId,
         status: STATUS.PENDING,
       })
-    } else if (machineState.currentUserId != userId) {
-      deleteSession(machineState.session.id)
+    } else if (machineState.currentClientId != clientId && machineState.session.status === STATUS.PENDING) {
+      await deleteSession(machineState.session.id)
+      machineState.session = null
     }
 
-    machineState.currentUserId = userId;
+    machineState.currentClientId = clientId;
     machineState.state = MACHINE_STATES.BUSY;
     if (machineState.idleTimer) {
       clearTimeout(machineState.idleTimer);
@@ -45,31 +48,27 @@ exports.useMachineState = () => {
     machineState.idleTimer = setTimeout(resetMachineState, resetTime);
   };
 
-  const isMachineBusy = (userId) => {
-    return machineState.state === MACHINE_STATES.BUSY && machineState.currentUserId !== userId;
+  const isMachineBusy = (clientId) => {
+    return machineState.state === MACHINE_STATES.BUSY && machineState.currentClientId !== clientId;
   };
 
-  const getCurrentUserId = () => {
-    return machineState.currentUserId;
+  const getCurrentClientId = () => {
+    return machineState.currentClientId;
   };
 
-  return [machineState, isMachineBusy, occupyMachine, getCurrentUserId];
+  return [machineState, isMachineBusy, occupyMachine, getCurrentClientId];
 };
   
-exports.checkBusy = (isMachineBusy, getCurrentUserId, serviceName) => catchAsync(async (req, res, next) => {
-  const { userId } = req.user;
+exports.checkBusy = (isMachineBusy, getCurrentClientId, serviceName) => catchAsync(async (req, res, next) => {
+  const { clientId } = req.client;
 
-  if (userId == null) {
-    res.status(400).json({
-      status: "fail",
-      message: "User ID is required!",
-    });
-    return;
+  if (clientId == null) {
+    next(new AppError("Random Client Id is required!", 400))
   }
 
-  if (isMachineBusy(userId)) {
-    createSession({
-      userId,
+  if (isMachineBusy(clientId)) {
+    await createSession({
+      clientId,
       status: STATUS.DENIED,
     })
 
@@ -78,7 +77,7 @@ exports.checkBusy = (isMachineBusy, getCurrentUserId, serviceName) => catchAsync
       message: `The server with ${serviceName} is busy. Please try again later!`,
       data: {
         blockedByStateMachine: true,
-        currentUserId: getCurrentUserId(),
+        currentClientId: getCurrentClientId(),
       },
     });
 
@@ -93,24 +92,20 @@ exports.checkBusy = (isMachineBusy, getCurrentUserId, serviceName) => catchAsync
   });
 });
 
-exports.checkMachineState = (isMachineBusy, occupyMachine) => (req, res, next) => {
-  const { userId } = req.user;
+exports.checkMachineState = (isMachineBusy, occupyMachine) => catchAsync(async (req, res, next) => {
+  const { clientId } = req.client;
 
-  if (userId == null) {
-    res.status(400).json({
-      status: "fail",
-      message: "User ID is required!",
-    });
-    return;
+  if (clientId == null) {
+    next(new AppError("Random Client ID is required!", 400))
   }
 
-  if (isMachineBusy(userId)) {
+  if (isMachineBusy(clientId)) {
     next(new AppError("The server is busy. Please try again later!", 429))
     return;
   }
 
-  occupyMachine(userId);
+  await occupyMachine(clientId);
 
   next();
-};
+});
   

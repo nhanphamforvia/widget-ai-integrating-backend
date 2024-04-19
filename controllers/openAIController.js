@@ -6,10 +6,10 @@ const { useMachineState, checkBusy, checkMachineState } = require("./machineStat
 const TEMP = 0.0;
 
 // State Machine variables
-const [_, isServiceBusy, userOccupyService, getCurrentServiceUserId] = useMachineState();
+const [_, isServiceBusy, clientOccupyService, getCurrentClientId] = useMachineState();
 
-exports.checkBusy = checkBusy(isServiceBusy, getCurrentServiceUserId, "OpenAI");
-exports.checkMachineState = checkMachineState(isServiceBusy, userOccupyService);
+exports.checkBusy = checkBusy(isServiceBusy, getCurrentClientId, "OpenAI");
+exports.checkMachineState = checkMachineState(isServiceBusy, clientOccupyService);
 
 exports.chatCompletion = catchAsync(async (req, res, next) => {
   const deploymentName = process.env.OPEN_API_DEPLOYMENT_NAME;

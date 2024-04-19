@@ -1,10 +1,12 @@
+const moment = require("moment/moment");
 const catchAsync = require("../utils/catchAsync");
-const { getSessions, getSession, updateSession, deleteSession, createSession } = require('../data/historyOperators') 
+const AppError = require("../utils/appError");
+const { getSessions, getSession, updateSession, deleteSession, createSession } = require('../data/historyOperators'); 
 
 exports.getSessions = catchAsync(async (req, res, next) => {
     const { query } = req
-    const sessions = getSessions(query)
-    
+    const sessions = await getSessions(query)
+
     res.status(200).json({
         status: "success",
         results: sessions.length,
@@ -15,20 +17,22 @@ exports.getSessions = catchAsync(async (req, res, next) => {
 exports.getSession = catchAsync(async (req, res, next) => {
     const { params } = req
 
+    const session = await getSession(params.sessionId)
+
     res.status(200).json({
         status: "success",
-        data: getSession(params.sessionId)
+        data: session
     })
 });
 
 exports.createSession = catchAsync(async (req, res, next) => {
-    const { body: { userId, tool, status, origin } } = req
+    const { body: { clientId, tool, status, origin } } = req
 
-    if (userId == null) {
-        throw new Error("UserID is required")
+    if (clientId == null) {
+        next(new AppError("UserID is required", 403))
     }
-    
-    const newSession = createSession({ userId, tool, status, origin })
+
+    const newSession = await createSession({ clientId, tool, status, origin })
 
     res.status(201).json({
         status: "success",
@@ -39,7 +43,7 @@ exports.createSession = catchAsync(async (req, res, next) => {
 exports.updateSession = catchAsync(async (req, res, next) => {
     const { params, body } = req
 
-    const updatedSession = updateSession(params.sessionId, body)
+    const updatedSession = await updateSession(params.sessionId, body)
 
     res.status(200).json({
         status: "success",
@@ -50,10 +54,66 @@ exports.updateSession = catchAsync(async (req, res, next) => {
 exports.deleteSession = catchAsync(async (req, res, next) => {
     const { params } = req
 
-    deleteSession(params.sessionId)
+    await deleteSession(params.sessionId)
 
     res.status(204).json({
         status: "success",
         data: null
     })
+});
+
+exports.getSessionsByWeekInYear = catchAsync(async (req, res, next) => {
+    const { query, params: { year } } = req;
+
+    if (year == null) {
+        next(new AppError("Please provide a valid year!", 400));
+    }
+
+    const sessions = await getSessions(query);
+
+    const groupedByWeek = sessions.reduce((grouped, session) => {
+        const sessionYear = moment(session.createdAt).year();
+
+        if (Number(sessionYear) === Number(year)) {
+            const week = moment(session.createdAt).week();
+            if (!grouped[week]) {
+                grouped[week] = [];
+            }
+            grouped[week].push(session);
+        }
+
+        return grouped;
+    }, {});
+
+    res.status(200).json({
+        status: "success",
+        data: groupedByWeek
+    });
+});
+
+exports.getSessionsByYearAndWeek = catchAsync(async (req, res, next) => {
+    const { query } = req;
+    const sessions = await getSessions(query);
+
+    const groupedByYearAndWeek = sessions.reduce((grouped, session) => {
+        const year = moment(session.createdAt).year();
+        const week = moment(session.createdAt).week();
+
+        if (!grouped[year]) {
+            grouped[year] = {};
+        }
+
+        if (!grouped[year][week]) {
+            grouped[year][week] = [];
+        }
+
+        grouped[year][week].push(session);
+
+        return grouped;
+    }, {});
+
+    res.status(200).json({
+        status: "success",
+        data: groupedByYearAndWeek
+    });
 });

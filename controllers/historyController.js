@@ -1,7 +1,7 @@
 const moment = require("moment/moment");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
-const { getSessions, getSession, updateSession, deleteSession, createSession } = require('../data/historyOperators'); 
+const { getSessions, getSession, updateSession, deleteSession, createSession } = require('../data/history/historyOperators'); 
 
 exports.getSessions = catchAsync(async (req, res, next) => {
     const { query } = req

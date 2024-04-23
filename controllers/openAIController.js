@@ -4,6 +4,7 @@ const catchAsync = require("../utils/catchAsync");
 const { useMachineState, checkBusy, checkMachineState } = require("./machineStateFactory");
 
 const TEMP = 0.0;
+const deploymentName = process.env.OPEN_API_DEPLOYMENT_NAME;
 
 // State Machine variables
 const [_, isServiceBusy, clientOccupyService, getCurrentClientId] = useMachineState();
@@ -12,7 +13,6 @@ exports.checkBusy = checkBusy(isServiceBusy, getCurrentClientId, "OpenAI");
 exports.checkMachineState = checkMachineState(isServiceBusy, clientOccupyService);
 
 exports.chatCompletion = catchAsync(async (req, res, next) => {
-  const deploymentName = process.env.OPEN_API_DEPLOYMENT_NAME;
   const { sysContent, userContent, temperature = TEMP } = req.body;
 
   if (sysContent == null || userContent == null) {

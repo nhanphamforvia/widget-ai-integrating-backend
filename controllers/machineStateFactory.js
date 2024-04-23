@@ -1,5 +1,5 @@
 const catchAsync = require("../utils/catchAsync");
-const { updateSession, createSession, deleteSession, STATUS } = require('../data/historyOperators'); 
+const { updateSession, createSession, deleteSession, STATUS } = require('../data/history/historyOperators'); 
 const AppError = require("../utils/appError");
 
 const MACHINE_STATES = {
@@ -7,7 +7,7 @@ const MACHINE_STATES = {
   BUSY: "busy",
 };
   
-const RESET_MACHINE_STATE_DELAY = 15000;
+const RESET_MACHINE_STATE_DELAY = 5000;
 
 exports.useMachineState = () => {
   const machineState = {
@@ -28,17 +28,25 @@ exports.useMachineState = () => {
     machineState.session = null
   };
 
-  const occupyMachine = async (clientId, resetTime = RESET_MACHINE_STATE_DELAY) => {
+  const occupyMachine = async (clientId, tool, resetTime = RESET_MACHINE_STATE_DELAY) => {
     if (machineState.session == null) {
       machineState.session = await createSession({
         clientId,
         status: STATUS.PENDING,
+        tool,
+      })
+    } else if (machineState.currentClientId === clientId && tool && tool !== machineState.session.tool) {
+      await updateSession(machineState.session.id, { status: STATUS.SUCCESS })
+      machineState.session = await createSession({
+        clientId,
+        status: STATUS.PENDING,
+        tool,
       })
     } else if (machineState.currentClientId != clientId && machineState.session.status === STATUS.PENDING) {
       await deleteSession(machineState.session.id)
       machineState.session = null
     }
-
+    
     machineState.currentClientId = clientId;
     machineState.state = MACHINE_STATES.BUSY;
     if (machineState.idleTimer) {
@@ -94,6 +102,7 @@ exports.checkBusy = (isMachineBusy, getCurrentClientId, serviceName) => catchAsy
 
 exports.checkMachineState = (isMachineBusy, occupyMachine) => catchAsync(async (req, res, next) => {
   const { clientId } = req.client;
+  const { tool } = req.body
 
   if (clientId == null) {
     next(new AppError("Random Client ID is required!", 400))
@@ -104,7 +113,7 @@ exports.checkMachineState = (isMachineBusy, occupyMachine) => catchAsync(async (
     return;
   }
 
-  await occupyMachine(clientId);
+  await occupyMachine(clientId, tool);
 
   next();
 });

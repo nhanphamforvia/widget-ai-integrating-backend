@@ -9,15 +9,18 @@ const openaiRoutes = require("./routes/openAIRoutes");
 const translatorRoutes = require("./routes/translatorRoutes");
 const docIntelRoutes = require("./routes/docIntelRoutes");
 const historyRoutes = require("./routes/historyRoutes");
+const promptsRoutes = require('./routes/promptRoutes')
 
 const app = express();
 
 // Security
 app.set("trust proxy", true);
 
+
+// TODO: Remove the localhost after deployment
 app.use(
   cors({
-    origin: ["https://almt.hella.com", "https://alm.hella.com", "api.cognitive.microsofttranslator.com"],
+    origin: ["https://almt.hella.com", "https://alm.hella.com", "http://localhost:5173", "http://10.13.8.242:5173"],
     credentials: true,
   })
 );
@@ -25,7 +28,7 @@ app.use(
 app.options(
   "*",
   cors({
-    origin: ["https://almt.hella.com", "https://alm.hella.com", "api.cognitive.microsofttranslator.com"],
+    origin: ["https://almt.hella.com", "https://alm.hella.com", "http://localhost:5173", "http://10.13.8.242:5173"],
   })
 );
 
@@ -44,19 +47,12 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/api-trusted", (req, res) => {
-  res.status(200).send(`<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; height: 100vh;">
-    <div>The API is trusted. You can now close this window to proceed.</div>
-    <p><i>Production Server Response</i></p>
-  </div>`);
-});
-
 // Routes
 app.use("/api/v1/openai", openaiRoutes);
 app.use("/api/v1/translator", translatorRoutes);
 app.use("/api/v1/docIntel", docIntelRoutes);
-app.use("/api/v1/history", historyRoutes)
-
+app.use("/api/v1/history", historyRoutes);
+app.use("/api/v1/prompts", promptsRoutes);
 
 app.use("*", (req, res, next) => {
   next(new AppError(`No routes found at ${req.originalUrl}`, 400));

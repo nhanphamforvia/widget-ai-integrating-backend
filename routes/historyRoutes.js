@@ -9,5 +9,4 @@ router.route("/sessions/years/:year/weeks").get(historyController.getSessionsByW
 router.route("/sessions").get(historyController.getSessions).post(historyController.createSession);
 router.route("/sessions/:sessionId").get(historyController.getSession).patch(historyController.updateSession).delete(historyController.deleteSession);
 
-
 module.exports = router;

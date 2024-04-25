@@ -10,6 +10,7 @@ const translatorRoutes = require("./routes/translatorRoutes");
 const docIntelRoutes = require("./routes/docIntelRoutes");
 const historyRoutes = require("./routes/historyRoutes");
 const promptsRoutes = require('./routes/promptRoutes')
+const authRoutes = require('./routes/authRoutes')
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use("/api/v1/translator", translatorRoutes);
 app.use("/api/v1/docIntel", docIntelRoutes);
 app.use("/api/v1/history", historyRoutes);
 app.use("/api/v1/prompts", promptsRoutes);
+app.use("/api/v1/auth", authRoutes);
 
 app.use("*", (req, res, next) => {
   next(new AppError(`No routes found at ${req.originalUrl}`, 400));

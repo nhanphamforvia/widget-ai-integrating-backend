@@ -1,4 +1,5 @@
 const catchAsync = require("../utils/catchAsync");
+const aiServiceQueue = require('../services/serviceQueue'); 
 const { updateSession, createSession, deleteSession, STATUS } = require('../data/history/historyOperators'); 
 const AppError = require("../utils/appError");
 
@@ -6,8 +7,16 @@ const MACHINE_STATES = {
   IDLE: "idle",
   BUSY: "busy",
 };
-  
+
 const RESET_MACHINE_STATE_DELAY = 5000;
+
+const addRequestToQueue = async (req, res) => {
+    const requestData = req.body;
+    aiServiceQueue.enqueue(requestData);
+
+    console.log(aiServiceQueue.printQueue())
+    res.status(202).json({ message: 'Request accepted and queued.' });
+}
 
 exports.useMachineState = () => {
   const machineState = {
@@ -74,11 +83,16 @@ exports.checkBusy = (isMachineBusy, getCurrentClientId, serviceName) => catchAsy
     next(new AppError("Random Client Id is required!", 400))
   }
 
-  if (isMachineBusy(clientId)) {
-    await createSession({
+  if (!isMachineBusy(clientId)) {
+    const session = await createSession({
       clientId,
       status: STATUS.DENIED,
     })
+    
+    // addRequestToQueue({
+    //   clientId, 
+    //   sessionId: session.id,
+    // })
 
     res.status(200).json({
       status: "success",

@@ -9,14 +9,13 @@ const openaiRoutes = require("./routes/openAIRoutes");
 const translatorRoutes = require("./routes/translatorRoutes");
 const docIntelRoutes = require("./routes/docIntelRoutes");
 const historyRoutes = require("./routes/historyRoutes");
-const promptsRoutes = require('./routes/promptRoutes')
-const authRoutes = require('./routes/authRoutes')
+const promptsRoutes = require("./routes/promptRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
 // Security
 app.set("trust proxy", true);
-
 
 // TODO: Remove the localhost after deployment
 app.use(
@@ -37,7 +36,7 @@ app.options(
 app.use(express.static(path.join(__dirname, "public")));
 
 // Transfer data to process
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
 app.use(compression());
 
 // Test route
@@ -57,7 +56,7 @@ app.use("/api/v1/prompts", promptsRoutes);
 app.use("/api/v1/auth", authRoutes);
 
 app.use("*", (req, res, next) => {
-  next(new AppError(`No routes found at ${req.originalUrl}`, 400));
+  next(new AppError(`No routes found at ${req.originalUrl}`, 404));
 });
 
 // Error hanlder

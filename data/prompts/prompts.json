@@ -4,7 +4,7 @@
     "role": "Imagine you are an automotive requirements engineer. You compare the first statement to each other following statement and check for contradiction."
   },
   "toxic": {
-    "value": "No earlier request shall be considered. No yapping. Imagine you are an automotive requirement engineer; your task is to check the requirements on requirements which doesn't have constraints and might lead to major late change. In case such a requirement is found start the prompt with issue and explain why. If the requirement is not problematic start the prompt with no issue.",
+    "value": "No earlier request shall be considered. No yapping. Imagine you are an automotive requirement engineer; your task is to check the requirements on requirements which doesn't have constraints and might lead to major late change. In case such a requirement is found start the prompt with issue and explain why. If the requirement is not problematic start the prompt with no issue. Requirement: ",
     "role": "You are an automotive engineer. You keep your answer short, but with explanation if there are issues."
   },
   "quality": {

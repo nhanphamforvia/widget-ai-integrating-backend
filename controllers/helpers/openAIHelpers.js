@@ -22,7 +22,23 @@ const chatCompletion = async (messages, temperature = TEMP) => {
     throw err;
   }
 };
+
 // Consistency
+const parsePairsWithIssuesOnly = (string) => {
+  let regex = /^Issues \((\d+ - \d+)\): ([\s\S]*?)(?=^Issues \(\d+ - \d+\): |$)/gm;
+  let match;
+  let result = [];
+
+  while ((match = regex.exec(string)) !== null) {
+    result.push({
+      pairIds: match[1].split(" - ").map(Number),
+      message: match[2].trim(),
+    });
+  }
+
+  return result;
+};
+
 const executeCheckConsistency = async ({ visitedMap, checkQueue, prompt, role }) => {
   const REQ_PER_TIME = 30;
 
@@ -176,7 +192,10 @@ const buildQueueAndCheckConsistency = async ({ requirements, MAX_CHARS = 4000, p
 
   return {
     issues: queueIssues,
-    issuesData: queueIssuesData,
+    issuesData: queueIssuesData.map((issueData) => ({
+      ...issueData,
+      pairsWithIssues: parsePairsWithIssuesOnly(issueData.message),
+    })),
     errors: queueErrors,
   };
 };

@@ -1,6 +1,6 @@
 {
   "consistency": {
-    "value": "Do not consider any questions raised before. Check the next to statements if they work together, if there are contradictions in content of the statement and each next to statement, start the reply with issue. If units of measurement are different convert the values and check the initial values against each other. If the requirement is describing an illumination requirement, it's not an issue as long as the logic of the values work, for example if the turn off values are lower than the turn on values. In case of an issue explain why. Check the main to each of the statement in order.",
+    "value": "Do not consider any questions raised before. Check the next to statements if they work together. Instructions: - Compare the main requirement (the first one) against each of the other requirement (after the hyphen). Each comparison is called a pair. For example, the main requirement A, next to requirements: B, C, D, we will have 3 pairs A - B, A - C and A - D. - If there are contradictions in a pair, start the reply with issue in the format \"Issues (#MainRequirementID - #NextToRequirementID): Issue between #MainRequirementID and #NextToRequirementID because (explanation here).\". - If there are no contradictions in a pair, reply exactly in the format \"No Issues (#MainRequirementID - #NextToRequirementID)\". - If units of measurement are different convert the values and check the initial values against each other. For example, if the requirement is describing an illumination requirement, it's not an issue as long as the logic of the values work, for example if the turn off values are lower than the turn on values.",
     "role": "Imagine you are an automotive requirements engineer. You compare the first statement to each other following statement and check for contradiction."
   },
   "toxic": {
@@ -8,7 +8,7 @@
     "role": "You are an automotive engineer. You keep your answer short, but with explanation if there are issues."
   },
   "quality": {
-    "value": "No earlier request shall be considered. No yapping. Imagine you are an automotive quality engineer, and your task is to rate the quality of the requirement based on the INCOSE standard. Rate the quality of requirement. Keep the answer short, do not start the sentence with as a quality engineer. Start the prompt with Quality: #Level, where #Level is one of the 5 words (WORST, BAD, MEDIUM, GOOD, GREAT).",
+    "value": "No earlier request shall be considered. No yapping. Imagine you are an automotive quality engineer, and your task is to rate the quality of the requirement based on the INCOSE standard. Rate the quality of requirement. Keep the answer short, do not start the sentence with as a quality engineer. Start the prompt with Quality: #Level #LineBreak, where #Level is one of the 5 words (POOR, BELOW AVERAGE, AVERAGE, ABOVE AVERAGE, EXCELLENT).",
     "role": "You are an automotive engineer. You keep your answer short, but with explanation if there are issues."
   },
   "test-case": {

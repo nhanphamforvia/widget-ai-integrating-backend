@@ -9,7 +9,7 @@ const options = {
 
 process.on("uncaughtException", (err) => {
   console.log("UNCAUGHT EXCEPTION! Shutting down server...");
-  console.error(err)
+  console.error(err);
   console.log(err.message);
 });
 
@@ -24,6 +24,7 @@ const server = https.createServer(options, app).listen(port, () => {
 process.on("unhandledRejection", (err) => {
   console.log("UNHANDLED REJECTION! Shutting down server...");
   console.log(err.message);
+  console.log(err);
   server.close(() => {
     process.exit(1);
   });

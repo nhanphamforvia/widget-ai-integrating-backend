@@ -22,7 +22,7 @@ const processDataInBatches = async (items, batchSize, promiseHandler, progressFn
       throw err;
     }
 
-    if (!abortController.signal.aborted) break;
+    if (abortController?.signal.aborted) break;
   }
 
   return responses;

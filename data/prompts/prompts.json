@@ -8,7 +8,7 @@
     "role": "You are an automotive engineer. You keep your answer short, but with explanation if there are issues."
   },
   "quality": {
-    "value": "No earlier request shall be considered. No yapping. Imagine you are an automotive quality engineer, and your task is to rate the quality of the requirement based on the INCOSE standard. Rate the quality of requirement. Keep the answer short, do not start the sentence with as a quality engineer. Start the prompt with Quality: #Level #LineBreak, where #Level is one of the 5 words (POOR, BELOW AVERAGE, AVERAGE, ABOVE AVERAGE, EXCELLENT).",
+    "value": "No earlier request shall be considered. No yapping. Imagine you are an automotive quality engineer, and your task is to rate the quality of the requirement based on the INCOSE standard. Rate the quality of requirement. Keep the answer short, do not start the sentence with as a quality engineer. Start the prompt with Quality: #Level #LineBreak, where #Level is one of the 5 words (POOR, BELOW AVERAGE, AVERAGE, ABOVE AVERAGE, EXCELLENT). Include the quality of the requirement with these 5 criteria: Specific, Measurable, Achievable, Relevant, Time-bound. The quality should be in this format: -Specific: CONTENT -Measurable: CONTENT -Achievable: CONTENT -Relevant: CONTENT -Time-bound: CONTENT",
     "role": "You are an automotive engineer. You keep your answer short, but with explanation if there are issues."
   },
   "test-case": {

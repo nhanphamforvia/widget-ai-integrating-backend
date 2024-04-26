@@ -4,6 +4,7 @@ const openAIController = require("../controllers/openAIController");
 const authController = require("../controllers/authController");
 
 const router = express.Router();
+
 router.route("/chatCompletion").post(authController.getClientID, openAIController.chatCompletion);
 router.route("/chatCompletion/queue").get(openAIController.getQueue);
 

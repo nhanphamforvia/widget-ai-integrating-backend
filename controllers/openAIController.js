@@ -128,10 +128,13 @@ exports.checkConsistency = catchAsync(async (req, res, next) => {
 exports.checkBusy = checkBusy(isBusy, "OpenAI");
 
 exports.getQueue = catchAsync(async (req, res, next) => {
+  const queue = getCompressedQueue(req.query);
+
   res.status(200).json({
     status: "success",
+    results: queue.length,
     data: {
-      queue: getCompressedQueue(),
+      queue,
     },
   });
 });

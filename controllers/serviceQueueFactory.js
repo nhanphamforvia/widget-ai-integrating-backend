@@ -39,8 +39,26 @@ exports.useQueueFactory = () => {
     queue.printQueue();
   };
 
-  const getCompressedQueue = () => {
-    return queue.items.map(({ clientId, sessionId, tool, requestedAt, data: { artifacts } }) => ({ requestedAt, clientId, sessionId, tool, artifactCount: artifacts.length }));
+  const getCompressedQueue = ({ tool = null, clientId = null }) => {
+    let fileredQueueItems = queue.items;
+
+    if (tool != null) {
+      fileredQueueItems = fileredQueueItems.filter((item) => item.tool === tool);
+    }
+
+    if (clientId != null) {
+      fileredQueueItems = fileredQueueItems.filter((item) => item.clientId === clientId);
+    }
+
+    return fileredQueueItems.map(({ clientId, sessionId, tool, requestedAt, data: { artifacts, moduleURI, projectId } }) => ({
+      requestedAt,
+      clientId,
+      sessionId,
+      tool,
+      projectId,
+      moduleURI,
+      artifactCount: artifacts.length,
+    }));
   };
 
   return {

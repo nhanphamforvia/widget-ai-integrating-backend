@@ -10,7 +10,7 @@ exports.useQueueFactory = () => {
   const queue = new Queue();
 
   let state = MACHINE_STATES.IDLE;
-
+  
   const isBusy = () => {
     return state === MACHINE_STATES.BUSY;
   };

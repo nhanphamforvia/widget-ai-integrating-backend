@@ -2,7 +2,7 @@ const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 const { useQueueFactory, checkBusy } = require("./serviceQueueFactory");
 const { updateSession, createSession, deleteSession, STATUS } = require("../data/history/historyOperators");
-const { useChatCompletionForConsistency, useChatCompletionForIndividualItem } = require("./helpers/openAIHelpers");
+const { useChatCompletionForConsistency, useChatCompletionForIndividualItem, useChatCompletionForTestCaseGeneration } = require("./helpers/openAIHelpers");
 
 // State Machine and Queue variables
 const { queue, subscribeToQueue, getNextRequest, isBusy, commenceQueueProcess, resetServiceState, getCompressedQueue } = useQueueFactory();
@@ -16,7 +16,7 @@ const processNextRequest = async () => {
   const request = getNextRequest();
 
   const { sessionId, clientId, data: inputData, tool, prompt, role, requestedAt } = request;
-  const { artifacts, ...almWorkspaceProps } = inputData;
+  const { artifacts, dataForTestCases, ...almWorkspaceProps } = inputData;
 
   // TODO: Check if tool is consistency, make a branch to handle it separately.
 
@@ -29,6 +29,9 @@ const processNextRequest = async () => {
     case "toxic":
     case "quality":
       results = await useChatCompletionForIndividualItem(artifacts, prompt, role);
+      break;
+    case "test-case-generation":
+      results = await useChatCompletionForTestCaseGeneration(artifacts, dataForTestCases, prompt, role);
       break;
     default:
       throw new AppError("Invalid tool specified", 400);

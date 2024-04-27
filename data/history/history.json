@@ -3500,6 +3500,591 @@
       "duration": 0,
       "status": "pending",
       "tool": "quality"
+    },
+    {
+      "id": "a3e5bc32-3cee-4a2e-ad46-9479d964d299",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T07:50:27.977Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "6b9d05d1-c839-468d-9992-1549397d8b0e",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T07:51:27.224Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "ec232bcc-5156-443d-a7a5-7b57bd5dc50e",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T07:53:46.222Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "cb0d7ad0-3ad8-412d-8f83-429e1767013b",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T08:01:47.554Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "818402ed-a539-4ffc-8800-79f0875ded8b",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T08:19:04.631Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "c99b4397-76b7-45f8-b4af-c3e03c8b0523",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T08:29:26.609Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "8cc2a4ed-9466-4690-8b3c-f4678a66590f",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T08:37:35.780Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "943c5d71-d2ae-467c-833d-742d34f4d397",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:11:25.211Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "a51ba83e-64df-43a6-81ff-b97fd5c10bf6",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:12:57.883Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "e7214783-face-4939-b261-ebc2063ff1ce",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:13:40.696Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "7eb12618-5615-4c6e-af7d-e0f0f8e2c45a",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:14:02.368Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "619925d7-cda1-4c46-ab9b-4b583251168b",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:16:22.182Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "ad7397b0-12de-4285-8148-34bc39c39e73",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:16:40.076Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "376f13c4-9425-4608-824b-b7d7c3707556",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:17:45.754Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "194fdd85-c664-4d37-bbe9-754a4c0e79e1",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:18:26.616Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "bcc50484-6b48-4418-8432-c935c2ffd387",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:18:48.499Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "ea581ad8-bb41-4505-bcc3-f7a1555940b5",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:20:28.439Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "c6dfe0c3-25e0-43a6-bbfc-0eef29197b53",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:20:47.990Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "e76d7439-a752-4f78-81fb-3d87a44055a9",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:21:53.526Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "4abc9abd-8119-4933-8213-9b418bf9e829",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:24:02.417Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "fc1ee0e9-59c0-48a6-8c14-99467a545fdb",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:24:33.584Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "99beefa9-8cfc-4d8c-a962-5adab4a529f1",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:25:23.023Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "50bcc09e-81a0-4bfa-b5fd-0e8aab144553",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:28:01.372Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "99c19835-2e6b-43da-8da6-28183fd85638",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:29:52.418Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "5f819ed3-7f7e-4c93-a768-53e3736769df",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:30:38.430Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "c495f7e3-5246-4ee4-9025-8ae511f73a78",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:31:04.631Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "fec39901-5010-435d-b0ab-646c60775e11",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:32:05.867Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "c39155a3-ca85-46ac-a51f-33bc9547118d",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:32:29.034Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "01786784-0131-4149-9056-71eb62a84806",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:33:13.300Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "22340a1f-c986-4b61-a166-89bf7a9f123b",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T09:37:24.547Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "e46f8b0e-571c-4968-9624-2e7253c16948",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T17:42:37.197Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "c68dc3fa-90a7-4093-928b-9f466f0d952b",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T17:44:58.416Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "3ca69e7f-942b-4a6d-9b26-8f661124071d",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T17:45:48.364Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "44de4948-61b3-4bc5-8c39-067c777c9204",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T17:52:45.139Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "d6e4dde0-e429-44cf-9583-73d76fd5d1cd",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T17:53:07.949Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "84006a29-2651-4e03-9926-fec6bb5d38be",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T17:53:34.944Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "096094c5-67a1-4858-aef3-dac59c6c1840",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T17:54:01.237Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "f942b950-b487-4d37-bc54-6d6d5a5c3ce4",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T17:56:03.544Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "06562033-f426-4ea5-adbb-fd80f20c6427",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:16:44.833Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "1dbc01f6-e385-4747-bb5f-2a7e82dde3d9",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:17:19.718Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "595d0418-67a3-48f5-88c7-0772cb437985",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:19:26.199Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "61c6a2d3-f632-425a-bb28-541e7558efce",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:20:34.833Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "56de3364-9037-420f-a204-283be9d663d2",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:21:10.584Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "14f52b4e-2a57-4a4d-b643-47e67cfc7c3e",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:21:46.272Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "9707e11e-cb55-4131-b89a-7be414075741",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:22:28.086Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "13ccfe5b-e910-4b19-a7df-a5cfbb44ead2",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:22:41.588Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "53b2984f-979e-4020-a58a-96c5a3a945f5",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:24:21.657Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "3615e528-75e5-4d2b-b3f1-3f0cca89188d",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:24:54.009Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "9b4a33bc-e00e-4c9b-aeee-d2d5ec6b1059",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:25:16.629Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "00d3ed80-b071-456d-8ffc-5aeb12a9421d",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:25:31.942Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "973239b6-8df0-492b-8012-ae0b0956c6b0",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:25:52.303Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "f8d5e854-8e29-420b-9369-d41c510006e9",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:26:07.135Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "626835b2-1d5b-4b7c-9465-2426fc285e4f",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:26:27.274Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "645ffa3e-4eb0-48f7-8887-401a869a97d9",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:26:41.159Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "2badf142-8490-4bca-8ff8-a9b2f4af18ea",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:26:54.706Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "c3edf864-ba5c-4a78-ac7c-7e61a485c3d9",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:27:11.218Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "f2971dac-0fbd-4724-a987-bd89b1d9538b",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:27:28.341Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "d0a68d65-2376-4635-8cc6-560d63bd0bc8",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:27:59.052Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "68699b51-dc5a-4c4c-9620-de46ce147eda",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:28:14.177Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "c8be9887-215e-441b-bb81-1674a7b73342",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:28:32.753Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "103b9bfa-cd8c-49fd-bd61-591a283f92d8",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:28:49.049Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "1ca5f0b5-7800-4a8f-adf8-cebb25754620",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:29:52.825Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "2c0f6044-b975-4966-a5ed-48f8f01c1eb6",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:30:44.749Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "f2b42404-d4cd-4d87-b93a-483454a817b6",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:39:38.171Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
+    },
+    {
+      "id": "a63bba68-f294-4466-96c7-f8825b620cdb",
+      "clientId": "0a6e49db-491e-4a89-982e-049101de3d49",
+      "createdAt": "2024-04-27T18:43:07.998Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-case-generation"
     }
   ]
 }

@@ -1,5 +1,5 @@
+const { Worker } = require("worker_threads");
 const { XMLParser } = require("fast-xml-parser");
-
 const openAIClient = require("../../openAIConnect");
 const AppError = require("../../utils/appError");
 const processDataInBatches = require("../../utils/processDataInBatches");
@@ -304,67 +304,6 @@ exports.useChatCompletionForIndividualItem = async (artifacts, prompt, role, bat
 /* END: Translate, Toxic and Quality */
 
 /* START: Test case generation */
-function calculateSimilarities(similarityThreshold) {
-  const groups = new Map();
-  const visited = new Map();
-
-  const POTENTIAL_MAX = 7;
-
-  const concursLength = self.concurTCs.length;
-  const existingTestCaseEntries = Array.from(self.existingTestCasesByWords.entries());
-  const existingLength = existingTestCaseEntries.length;
-
-  for (let i = 0; i < concursLength; i++) {
-    const { index, title: requiredTitle, description: requiredDescription } = self.concurTCs[i];
-    const currentDescriptionWords = new Set(requiredDescription?.split(" ") || "");
-    const currentDescriptionNumbers = (requiredDescription.match(/\d+/g) || []).map(Number);
-
-    for (let j = 0; j < existingLength; j++) {
-      const [id, value] = existingTestCaseEntries[j];
-      if (visited.has(id)) continue;
-
-      const { title: existingTitle, description: existingDescriptionWords } = value;
-
-      // Calculate Jaccard simiflarity using intersection and union of word sets
-      const intersectionSize = new Set([...currentDescriptionWords].filter((word) => existingDescriptionWords.has(word))).size;
-      const unionSize = currentDescriptionWords.size + existingDescriptionWords.size - intersectionSize;
-      let similarity = intersectionSize / unionSize;
-      let numberSimilarity = 0;
-
-      const numberMatches = currentDescriptionNumbers.filter((num) => existingDescriptionWords.has(num.toString()));
-
-      if (currentDescriptionNumbers.length > 0 && numberMatches.length === 0) continue;
-
-      if (numberMatches.length > 0) {
-        similarity = 1;
-        numberSimilarity = numberMatches.length / currentDescriptionNumbers.length;
-      }
-
-      if (similarity < similarityThreshold) continue;
-
-      const group = groups.get(index) || [];
-      visited.set(id, true);
-      group.push({ id, similarity, numberSimilarity });
-      group.sort((a, b) => {
-        if (b.similarity === a.similarity) {
-          return b.numberSimilarity - a.numberSimilarity;
-        }
-
-        return b.similarity - a.similarity;
-      });
-
-      if (group.length > POTENTIAL_MAX) {
-        const removed = group.pop();
-        visited.delete(removed.id);
-      }
-      groups.set(index, group);
-    }
-  }
-
-  // Send the result back to the main thread
-  self.postMessage({ type: "result", data: { workerGroups: Array.from(groups.entries()) } });
-}
-
 const filterSignalsUsedInRequirement = (requirementText, signalNames, signalsWithValues) => {
   return signalNames.reduce((signalsUsed, signalName) => {
     if (requirementText.includes(signalName)) {
@@ -383,9 +322,9 @@ const reduceExistingTestCasesToMapOfWords = (existingTestCases) => {
   const existingTestCasesByWords = new Map();
 
   existingTestCases.forEach((tcXml) => {
-    const id = tcXml["oslc:shortId"]?.textContent.trim();
-    const title = tcXml["dcterms:title"]?.textContent;
-    const description = tcXml["dcterms:description"]?.textContent;
+    const id = tcXml["rdf:Description"]["oslc:shortId"];
+    const title = tcXml["rdf:Description"]["dcterms:title"];
+    const description = tcXml["rdf:Description"]["dcterms:description"];
 
     existingTestCasesByWords.set(id, {
       title: new Set(title?.split(" ") || ""),
@@ -495,7 +434,7 @@ const consultAIForTestCaseOptions = async ({ requirementData, signalsWithValues,
     }
 
     const testCaseOptionsStr = resData.data?.[0];
-    console.log(testCaseOptionsStr);
+
     const consultError = Object.values(CONSULT_ERRORS).find((value) => {
       return testCaseOptionsStr.includes(value);
     });
@@ -528,21 +467,24 @@ const getRelevantExistingTestCases = async (testCasesData, existingTestCasesByWo
     let workers = [];
     let concurTCs = [];
 
-    const handleWorkerMessage = (event) => {
-      const { type, data } = event.data;
+    const handleWorkerMessage = (workerGroups) => {
+      workerGroups.forEach(([index, potentials]) => {
+        potentialTestCasePairs[index] = {
+          index,
+          potentials: potentials.map(({ id }) => {
+            return existingTestCasesLookup.has(id) ? existingTestCasesLookup.get(id) : null;
+          }),
+        };
+      });
+    };
 
-      if (type === "result") {
-        const { workerGroups } = data;
-
-        workerGroups.forEach(([index, potentials]) => {
-          potentialTestCasePairs[index] = {
-            index,
-            potentials: potentials.map(({ id }) => {
-              return existingTestCasesLookup.has(id) ? existingTestCasesLookup.get(id) : null;
-            }),
-          };
-        });
-      }
+    const createWorker = (concurTCs, existingTestCasesByWords, similarityThreshold) => {
+      const worker = new Worker("./controllers/helpers/worker.js", { workerData: { concurTCs, existingTestCasesByWords, similarityThreshold } });
+      worker.on("error", (err) => {
+        throw err;
+      });
+      worker.on("message", handleWorkerMessage);
+      return worker;
     };
 
     for (let i = 0; i < tcCount; i++) {
@@ -551,23 +493,17 @@ const getRelevantExistingTestCases = async (testCasesData, existingTestCasesByWo
       }
 
       if (workers.length < WORKERS_MAX && (concurTCs.length >= CONCUR_MAX || i === tcCount - 1)) {
-        const worker = new Worker("./js/workers/jaccardTestCase.worker.js");
-        worker.postMessage({ type: "initialize", concurTCs, existingTestCasesByWords });
-
+        const worker = createWorker(concurTCs, existingTestCasesByWords, similarityThreshold);
         workers.push(worker);
         concurTCs = [];
       }
 
       if (workers.length >= WORKERS_MAX || i === tcCount - 1) {
         workers.forEach((worker) => {
-          worker.addEventListener("message", handleWorkerMessage);
+          worker.postMessage("start");
         });
 
-        workers.forEach((worker) => {
-          worker.postMessage({ type: "start", similarityThreshold });
-        });
-
-        await Promise.allSettled(workers.map((worker) => new Promise((resolve) => worker.addEventListener("message", resolve))));
+        await Promise.allSettled(workers.map((worker) => new Promise((resolve) => worker.on("message", resolve))));
         workers.forEach((worker) => worker.terminate());
         workers = [];
       }
@@ -615,6 +551,30 @@ const consultAISelectExistingTestCase = async (dataStr, requirmentData) => {
   } catch (err) {
     throw err;
   }
+};
+
+const splitPromiseSettledResponses = (responses) => {
+  const { successList, failList } = responses.reduce(
+    (obj, res) => {
+      if (res.status !== "fulfilled") {
+        return {
+          ...obj,
+          failList: [...obj.failList, res.reason],
+        };
+      }
+
+      return {
+        ...obj,
+        successList: [...obj.successList, res.value],
+      };
+    },
+    {
+      successList: [],
+      failList: [],
+    }
+  );
+
+  return [successList, failList];
 };
 
 const getTestCasesMatches = async (potentialsWithProposalTestCases, requirementData) => {
@@ -676,23 +636,20 @@ const checkExistOrCreateTestCases = async ({ requirementData, signalsWithValues,
       role,
     });
 
-    console.log(testCasesData);
+    const potentialsWithProposalTestCases = await getRelevantExistingTestCases(testCasesData, existingTestCasesByWords, existingTestCasesLookup);
+    const [matchedExistingTestCases, failedMatching] = await getTestCasesMatches(potentialsWithProposalTestCases, requirementData);
 
-    // const potentialsWithProposalTestCases = await getRelevantExistingTestCases(testCasesData, existingTestCasesByWords, existingTestCasesLookup);
-    // const [matchedExistingTestCases, failedMatching] = await getTestCasesMatches(potentialsWithProposalTestCases, requirementData);
+    // TODO: Handle failed matchin here
+    const rematches = matchedExistingTestCases.map((match) => {
+      return parseAndRematchPairData(match, testCasesData, existingTestCasesLookup);
+    });
 
-    // // TODO: Handle failed matchin here
+    const { tcCreationRequired, matchedTCs } = extractTestCasesToCreateOrMatch(rematches);
 
-    // const rematches = matchedExistingTestCases.map((match) => {
-    //   return parseAndRematchPairData(match, testCasesData, existingTestCasesLookup);
-    // });
+    console.log(matchedTCs);
 
-    // const { tcCreationRequired, matchedTCs } = extractTestCasesToCreateOrMatch(rematches);
-
-    // console.log(tcCreationRequired);
-    // console.log(matchedTCs);
+    return { tcCreationRequired, matchedTCs };
   } catch (err) {
-    console.error(err);
     throw err;
   }
 };
@@ -701,21 +658,53 @@ exports.useChatCompletionForTestCaseGeneration = async (artifacts, dataForTestCa
   const abortController = new AbortController();
   const xmlParser = new XMLParser();
 
-  const { existingTestCases, signalsWithValues, commonEtmTCEnvVariables } = dataForTestCases;
-  const existingTestCaseXmls = existingTestCases.map((tcStr) => xmlParser.parse(tcStr));
-  const signalNames = Array.from(Object.keys(signalsWithValues));
-  const [existingTestCasesByWords, existingTestCasesLookup] = reduceExistingTestCasesToMapOfWords(existingTestCaseXmls);
-
-  const promiseHandler = async (requirementData) =>
-    checkExistOrCreateTestCases({ requirementData, signalsWithValues, signalNames, existingTestCasesByWords, existingTestCasesLookup, commonEtmTCEnvVariables, prompt, role });
-  const progressHandler = ({}) => {};
-
-  await processDataInBatches(artifacts, REQ_PER_TIME, promiseHandler, progressHandler, abortController);
-
   try {
+    const { existingTestCases, signalsWithValues, commonEtmTCEnvVariables } = dataForTestCases;
+    const existingTestCaseXmls = existingTestCases.map((tcStr) => xmlParser.parse(tcStr));
+    const signalNames = Array.from(Object.keys(signalsWithValues));
+    const [existingTestCasesByWords, existingTestCasesLookup] = reduceExistingTestCasesToMapOfWords(existingTestCaseXmls);
+
+    const promiseHandler = async (requirementData) =>
+      checkExistOrCreateTestCases({ requirementData, signalsWithValues, signalNames, existingTestCasesByWords, existingTestCasesLookup, commonEtmTCEnvVariables, prompt, role });
+    const progressHandler = ({}) => {};
+
+    const responses = await processDataInBatches(artifacts, REQ_PER_TIME, promiseHandler, progressHandler, abortController);
+
+    const { tcCreationRequired, matchedTCs, errors } = responses.reduce(
+      (flattenData, res) => {
+        if (res.status === "fulfilled") {
+          return {
+            ...flattenData,
+            tcCreationRequired: [...flattenData.tcCreationRequired, res.value.tcCreationRequired],
+            matchedTCs: [...flattenData.matchedTCs, res.value.matchedTCs],
+          };
+        }
+
+        if (res.status === "rejected") {
+          return {
+            ...flattenData,
+            errors: [...flattenData.errors, res.reason],
+          };
+        }
+
+        return flattenData;
+      },
+      {
+        tcCreationRequired: [],
+        matchedTCs: [],
+        errors: [],
+      }
+    );
+
+    return {
+      data: {
+        tcCreationRequired,
+        matchedTCs,
+      },
+      errors,
+    };
   } catch (err) {
     throw err;
-  } finally {
   }
 };
 /* END: Test case generation */

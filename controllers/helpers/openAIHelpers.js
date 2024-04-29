@@ -322,9 +322,13 @@ const reduceExistingTestCasesToMapOfWords = (existingTestCases) => {
   const existingTestCasesByWords = new Map();
 
   existingTestCases.forEach((tcXml) => {
-    const id = tcXml["rdf:Description"]["oslc:shortId"];
-    const title = tcXml["rdf:Description"]["dcterms:title"];
-    const description = tcXml["rdf:Description"]["dcterms:description"];
+    const id = tcXml["rdf:Description"]["oslc:shortId"]?.["#text"];
+    const title = tcXml["rdf:Description"]["dcterms:title"]?.["#text"];
+    const description = tcXml["rdf:Description"]["dcterms:description"]?.["#text"];
+    const rdfType = tcXml["rdf:Description"]["rdf:type"]["@_rdf:resource"];
+    const rdfAbout = tcXml["rdf:Description"]["@_rdf:about"];
+
+    if (!rdfType.endsWith("qm#TestCase")) return;
 
     existingTestCasesByWords.set(id, {
       title: new Set(title?.split(" ") || ""),
@@ -336,6 +340,8 @@ const reduceExistingTestCasesToMapOfWords = (existingTestCases) => {
       id,
       title,
       description,
+      rdfType,
+      rdfAbout,
     });
   });
 
@@ -400,8 +406,8 @@ const selectOutputDefinedTestCasesData = (testCasesData) => {
 
 const consultAIForTestCaseOptions = async ({ requirementData, signalsWithValues, signalNames, prompt, role }) => {
   const CONSULT_ERRORS = {
-    lackConstraints: "LACK CONSTRAINTS",
-    signalValuesUndefined: "SIGNALS POSSIBLE VALUES NOT FOUND",
+    lackConstraints: "LACK_CONSTRAINTS",
+    signalValuesUndefined: "SIGNALS_POSSIBLE_VALUES_NOT_FOUND",
   };
 
   const signalsUsed = filterSignalsUsedInRequirement(requirementData.primaryText, signalNames, signalsWithValues);
@@ -440,7 +446,7 @@ const consultAIForTestCaseOptions = async ({ requirementData, signalsWithValues,
     });
 
     if (consultError || parseLackConstraintsFlag(testCaseOptionsStr)) {
-      const msg = `Requirement <strong>${requirementData.id}</strong> is <strong>not testable</strong> due to high toxicity`;
+      const msg = `Requirement <strong>${requirementData.id}</strong> is <strong>not testable</strong> due to ${consultError}`;
       throw new Error(msg);
     }
 
@@ -454,9 +460,12 @@ const consultAIForTestCaseOptions = async ({ requirementData, signalsWithValues,
   }
 };
 
-const getRelevantExistingTestCases = async (testCasesData, existingTestCasesByWords, existingTestCasesLookup) => {
+const getRelevantExistingTestCases = async ({ testCasesData, existingTestCasesByWords, existingTestCasesLookup }) => {
   try {
-    testCasesData.forEach((tcData, i) => (tcData.index = i));
+    testCasesData.forEach((tcData, i) => {
+      tcData.index = i;
+    });
+
     const potentialTestCasePairs = [];
     const similarityThreshold = 0.3;
 
@@ -596,12 +605,13 @@ const parseAndRematchPairData = (match, testCasesData, existingTestCasesLookup) 
   let splitItem = match.split(": ");
 
   const index = parseInt(splitItem[0]);
-  const matchedIDs = splitItem[1] === "None" || splitItem[1] === "none" || splitItem[1] == null ? null : splitItem[1].split(",");
+  const matchedIDs = splitItem[1] === "None" || splitItem[1] === "none" || splitItem[1] == null ? null : splitItem[1].split(",").map(Number);
+  const bestMatchedId = matchedIDs?.[0];
 
   return {
     index,
     proposal: testCasesData.find((tc) => tc.index === index),
-    matchedTestCase: matchedIDs && existingTestCasesLookup.has(matchedIDs[0].trim()) ? existingTestCasesLookup.get(matchedIDs[0].trim()) : null,
+    matchedTestCase: bestMatchedId && existingTestCasesLookup.has(bestMatchedId) ? existingTestCasesLookup.get(bestMatchedId) : null,
   };
 };
 
@@ -636,7 +646,11 @@ const checkExistOrCreateTestCases = async ({ requirementData, signalsWithValues,
       role,
     });
 
-    const potentialsWithProposalTestCases = await getRelevantExistingTestCases(testCasesData, existingTestCasesByWords, existingTestCasesLookup);
+    const potentialsWithProposalTestCases = await getRelevantExistingTestCases({
+      testCasesData,
+      existingTestCasesByWords,
+      existingTestCasesLookup,
+    });
     const [matchedExistingTestCases, failedMatching] = await getTestCasesMatches(potentialsWithProposalTestCases, requirementData);
 
     // TODO: Handle failed matchin here
@@ -646,17 +660,28 @@ const checkExistOrCreateTestCases = async ({ requirementData, signalsWithValues,
 
     const { tcCreationRequired, matchedTCs } = extractTestCasesToCreateOrMatch(rematches);
 
-    console.log(matchedTCs);
+    tcCreationRequired.forEach(
+      (tc) =>
+        (tc.requirementData = {
+          id: requirementData.id,
+          uri: requirementData.uri,
+        })
+    );
 
-    return { tcCreationRequired, matchedTCs };
+    return {
+      requirementData: requirementData,
+      tcCreationRequired,
+      matchedTCs,
+    };
   } catch (err) {
+    console.error(err);
     throw err;
   }
 };
 
 exports.useChatCompletionForTestCaseGeneration = async (artifacts, dataForTestCases, prompt, role, batchSize = REQ_PER_TIME) => {
   const abortController = new AbortController();
-  const xmlParser = new XMLParser();
+  const xmlParser = new XMLParser({ ignoreAttributes: false });
 
   try {
     const { existingTestCases, signalsWithValues, commonEtmTCEnvVariables } = dataForTestCases;
@@ -665,41 +690,35 @@ exports.useChatCompletionForTestCaseGeneration = async (artifacts, dataForTestCa
     const [existingTestCasesByWords, existingTestCasesLookup] = reduceExistingTestCasesToMapOfWords(existingTestCaseXmls);
 
     const promiseHandler = async (requirementData) =>
-      checkExistOrCreateTestCases({ requirementData, signalsWithValues, signalNames, existingTestCasesByWords, existingTestCasesLookup, commonEtmTCEnvVariables, prompt, role });
+      checkExistOrCreateTestCases({ requirementData, signalsWithValues, signalNames, existingTestCasesByWords, existingTestCasesLookup, prompt, role });
     const progressHandler = ({}) => {};
 
-    const responses = await processDataInBatches(artifacts, REQ_PER_TIME, promiseHandler, progressHandler, abortController);
+    const responses = await processDataInBatches(artifacts, batchSize, promiseHandler, progressHandler, abortController);
 
-    const { tcCreationRequired, matchedTCs, errors } = responses.reduce(
-      (flattenData, res) => {
+    const { testCases, errors } = responses.reduce(
+      (testCasesForRequirements, res) => {
         if (res.status === "fulfilled") {
           return {
-            ...flattenData,
-            tcCreationRequired: [...flattenData.tcCreationRequired, res.value.tcCreationRequired],
-            matchedTCs: [...flattenData.matchedTCs, res.value.matchedTCs],
+            ...testCasesForRequirements,
+            testCases: [...testCasesForRequirements.testCases, res.value],
           };
-        }
-
-        if (res.status === "rejected") {
+        } else {
           return {
-            ...flattenData,
-            errors: [...flattenData.errors, res.reason],
+            ...testCasesForRequirements,
+            errors: [...testCasesForRequirements.errors, res.reason],
           };
         }
-
-        return flattenData;
       },
       {
-        tcCreationRequired: [],
-        matchedTCs: [],
+        testCases: [],
         errors: [],
       }
     );
 
     return {
       data: {
-        tcCreationRequired,
-        matchedTCs,
+        testCases,
+        commonEtmTCEnvVariables,
       },
       errors,
     };

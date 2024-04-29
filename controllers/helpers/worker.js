@@ -10,8 +10,6 @@ const computeSimilarities = ({ concurTCs, existingTestCasesByWords, similarityTh
   const existingTestCaseEntries = Array.from(existingTestCasesByWords.entries());
   const existingLength = existingTestCaseEntries.length;
 
-  console.log(existingTestCasesByWords);
-
   for (let i = 0; i < concursLength; i++) {
     const { index, title: requiredTitle, description: requiredDescription } = concurTCs[i];
     const currentDescriptionWords = new Set(requiredDescription?.split(" ") || "");

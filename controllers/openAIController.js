@@ -1,19 +1,19 @@
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 const { useQueueFactory, checkBusy } = require("./serviceQueueFactory");
-const { updateSession, createSession, deleteSession, STATUS } = require("../data/history/historyOperators");
+const { updateSession, createSession, deleteSession, getSession, STATUS } = require("../data/history/historyOperators");
 const { useChatCompletionForConsistency, useChatCompletionForIndividualItem, useChatCompletionForTestCaseGeneration } = require("./helpers/openAIHelpers");
 
 // State Machine and Queue variables
-const { queue, subscribeToQueue, getNextRequest, isBusy, commenceQueueProcess, resetServiceState, getCompressedQueue } = useQueueFactory();
+const { queue, subscribeToQueue, getNextRequest, isBusy, commenceQueueProcess, resetServiceState, getCompressedQueue, finishRequest, deleteQueueItem } = useQueueFactory();
 const finishedRequests = new Map();
 
 /* Main function to process requests */
 const processNextRequest = async () => {
   if (isBusy() || queue.isEmpty()) return;
 
-  commenceQueueProcess();
   const request = getNextRequest();
+  commenceQueueProcess(request);
 
   const { sessionId, clientId, data: inputData, tool, prompt, role, requestedAt } = request;
   const { artifacts, dataForTestCases, ...almWorkspaceProps } = inputData;
@@ -30,7 +30,7 @@ const processNextRequest = async () => {
     case "quality":
       results = await useChatCompletionForIndividualItem(artifacts, prompt, role);
       break;
-    case "test-case-generation":
+    case "test-cases-generation":
       results = await useChatCompletionForTestCaseGeneration(artifacts, dataForTestCases, prompt, role);
       break;
     default:
@@ -42,11 +42,19 @@ const processNextRequest = async () => {
   }
 
   const { data, errors } = results;
+  const session = getSession(sessionId);
+
+  if (session.status === STATUS.CANCELLED) {
+    resetServiceState();
+    processNextRequest();
+
+    return;
+  }
 
   await updateSession(sessionId, { status: STATUS.SUCCESS });
+  finishRequest();
 
   const doneRequestsForClientId = finishedRequests.get(clientId) || [];
-
   finishedRequests.set(clientId, [
     ...doneRequestsForClientId,
     {
@@ -139,6 +147,18 @@ exports.getQueue = catchAsync(async (req, res, next) => {
     data: {
       queue,
     },
+  });
+});
+
+exports.deleteQueueItem = catchAsync(async (req, res, next) => {
+  const { clientId } = req.client;
+  const { sessionId } = req.body;
+
+  deleteQueueItem(sessionId, clientId);
+  await updateSession(sessionId, { status: STATUS.CANCELLED });
+
+  res.status(204).json({
+    status: "success",
   });
 });
 

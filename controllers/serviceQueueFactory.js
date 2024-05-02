@@ -6,17 +6,24 @@ const MACHINE_STATES = {
   BUSY: "busy",
 };
 
+const QUEUE_ITEM_STATES = {
+  PENDING: "pending",
+  RUNNING: "running",
+  DONE: "done",
+};
+
 exports.useQueueFactory = () => {
   const queue = new Queue();
 
   let state = MACHINE_STATES.IDLE;
-  
+
   const isBusy = () => {
     return state === MACHINE_STATES.BUSY;
   };
 
-  const commenceQueueProcess = () => {
+  const commenceQueueProcess = (queueItem) => {
     state = MACHINE_STATES.BUSY;
+    queueItem.status = QUEUE_ITEM_STATES.RUNNING;
   };
 
   const resetServiceState = () => {
@@ -24,11 +31,17 @@ exports.useQueueFactory = () => {
   };
 
   const subscribeToQueue = (jobData) => {
+    jobData.status = QUEUE_ITEM_STATES.PENDING;
     queue.enqueue(jobData);
   };
 
+  const finishRequest = () => {
+    const item = queue.dequeue();
+    item.status = QUEUE_ITEM_STATES.DONE;
+  };
+
   const getNextRequest = () => {
-    return queue.dequeue();
+    return queue.peek();
   };
 
   const peekRequest = () => {
@@ -37,6 +50,15 @@ exports.useQueueFactory = () => {
 
   const printQueue = () => {
     queue.printQueue();
+  };
+
+  const deleteQueueItem = (sessionId, clientId) => {
+    const index = queue.findItemIndex((item) => item.sessionId === sessionId && item.clientId === clientId);
+    queue.removeItem(index);
+
+    if (queue.isEmpty()) {
+      state = MACHINE_STATES.IDLE;
+    }
   };
 
   const getCompressedQueue = ({ tool = null, clientId = null }) => {
@@ -71,6 +93,8 @@ exports.useQueueFactory = () => {
     resetServiceState,
     isBusy,
     getCompressedQueue,
+    finishRequest,
+    deleteQueueItem,
   };
 };
 

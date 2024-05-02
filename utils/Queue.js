@@ -21,12 +21,21 @@ class Queue {
     if (this.isEmpty()) {
       return null;
     }
+
     return this.items[0];
   }
 
   isEmpty() {
     // Check whether the queue is empty
     return this.items.length === 0;
+  }
+
+  findItemIndex(findCb) {
+    return this.items.findIndex(findCb);
+  }
+
+  removeItem(index) {
+    this.items.splice(index, 1);
   }
 
   printQueue() {

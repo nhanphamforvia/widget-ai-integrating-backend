@@ -8,6 +8,9 @@ const TEMP = 0.0;
 const deploymentName = process.env.OPEN_API_DEPLOYMENT_NAME;
 const REQ_PER_TIME = 30;
 
+const EXISTING_AI_TESTCASE_ROLE = "You are a tester, checking for potential test case that match the proposal test content to validate requirement";
+const EXISTING_AI_TESTCASE_PROMPT = `In the criteria of boundary check to validate the requirement, choose which ID of one test case from Potential Test Cases that share the most similar purpose and meaning of the description of the Proposal Content\n<DATA_STRING>. \nRequirement to validate: <REQ_TEXT>.\ If match found, answer in the exact format: {# of Proposal Content}: {ID value}. If no match found, answer in the exact format {# of Proposal Content}: None`;
+
 const chatCompletion = async (messages, temperature = TEMP) => {
   try {
     const result = await openAIClient.getChatCompletions(deploymentName, messages, { temperature });
@@ -534,17 +537,14 @@ const getRelevantExistingTestCases = async ({ testCasesData, existingTestCasesBy
 };
 
 const consultAISelectExistingTestCase = async (dataStr, requirmentData) => {
-  const role = "You are a tester, checking for potential test case that match the proposal test content to validate requirement";
-  const prompt = `In the criteria of boundary check to validate the requirement, choose which ID of one test case from Potential Test Cases that share the most similar purpose and meaning of the description of the Proposal Content\n${dataStr}. \nRequirement to validate: ${requirmentData.primaryText}.\ If match found, answer in the exact format: {# of Proposal Content}: {ID value}. If no match found, answer in the exact format {# of Proposal Content}: None`;
-
   const messages = [
     {
       role: "system",
-      content: role,
+      content: EXISTING_AI_TESTCASE_ROLE,
     },
     {
       role: "user",
-      content: prompt,
+      content: EXISTING_AI_TESTCASE_PROMPT.replace("<DATA_STRING>", dataStr).replace("<REQ_TEXT>", requirmentData.primaryText),
     },
   ];
 

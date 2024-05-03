@@ -16,7 +16,7 @@ const processNextRequest = async () => {
   commenceQueueProcess(request);
 
   const { sessionId, clientId, data: inputData, tool, prompt, role, requestedAt } = request;
-  const { artifacts, dataForTestCases, ...almWorkspaceProps } = inputData;
+  const { artifacts, dataForTestCases, dngWorkspace } = inputData;
 
   // TODO: Check if tool is consistency, make a branch to handle it separately.
 
@@ -63,7 +63,7 @@ const processNextRequest = async () => {
       data,
       errors,
       tool,
-      ...almWorkspaceProps,
+      dngWorkspace,
     },
   ]);
 

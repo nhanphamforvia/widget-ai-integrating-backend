@@ -36,6 +36,8 @@ exports.useQueueFactory = () => {
   };
 
   const finishRequest = () => {
+    if (queue.isEmpty()) return;
+
     const item = queue.dequeue();
     item.status = QUEUE_ITEM_STATES.DONE;
   };
@@ -54,8 +56,9 @@ exports.useQueueFactory = () => {
 
   const deleteQueueItem = (sessionId, clientId) => {
     const index = queue.findItemIndex((item) => item.sessionId === sessionId && item.clientId === clientId);
-    queue.removeItem(index);
+    if (index < 0) return;
 
+    queue.removeItem(index);
     if (queue.isEmpty()) {
       state = MACHINE_STATES.IDLE;
     }
@@ -72,13 +75,12 @@ exports.useQueueFactory = () => {
       fileredQueueItems = fileredQueueItems.filter((item) => item.clientId === clientId);
     }
 
-    return fileredQueueItems.map(({ clientId, sessionId, tool, requestedAt, data: { artifacts, moduleURI, projectId } }) => ({
+    return fileredQueueItems.map(({ clientId, sessionId, tool, requestedAt, data: { artifacts, dngWorkspace } }) => ({
       requestedAt,
       clientId,
       sessionId,
       tool,
-      projectId,
-      moduleURI,
+      dngWorkspace,
       artifactCount: artifacts.length,
     }));
   };

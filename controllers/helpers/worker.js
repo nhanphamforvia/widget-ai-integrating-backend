@@ -1,6 +1,6 @@
 const { parentPort, workerData } = require("worker_threads");
 
-const computeSimilarities = ({ concurTCs, existingTestCasesByWords, similarityThreshold }) => {
+const computeSimilarities = ({ concurTCs, existingTestCasesByWords, similarityThreshold, signalNames }) => {
   const groups = new Map();
   const visited = new Map();
 
@@ -26,14 +26,21 @@ const computeSimilarities = ({ concurTCs, existingTestCasesByWords, similarityTh
       const unionSize = currentDescriptionWords.size + existingDescriptionWords.size - intersectionSize;
       let similarity = intersectionSize / unionSize;
       let numberSimilarity = 0;
+      let signalNameSimilarity = 0;
 
       const numberMatches = currentDescriptionNumbers.filter((num) => existingDescriptionWords.has(num.toString()));
+      const signalNameMatches = signalNames.filter((signalName) => existingDescriptionWords.has(signalName));
 
-      if (currentDescriptionNumbers.length > 0 && numberMatches.length === 0) continue;
+      if (currentDescriptionNumbers.length > 0 && numberMatches.length === 0 && signalNames.length > 0 && signalNameMatches.length === 0) continue;
+
+      if (signalNameMatches.length > 0) {
+        similarity = 1;
+        signalNameSimilarity = signalNameMatches.length;
+      }
 
       if (numberMatches.length > 0) {
         similarity = 1;
-        numberSimilarity = numberMatches.length / currentDescriptionNumbers.length;
+        numberSimilarity = numberMatches.length;
       }
 
       if (similarity < similarityThreshold) continue;
@@ -42,7 +49,11 @@ const computeSimilarities = ({ concurTCs, existingTestCasesByWords, similarityTh
       visited.set(id, true);
       group.push({ id, similarity, numberSimilarity });
       group.sort((a, b) => {
-        if (b.similarity === a.similarity) {
+        if (b.similarity === a.similarity && a.similarity < 1) {
+          if (a.signalNameSimilarity > 0 || b.signalNameSimilarity > 0) {
+            return b.signalNameSimilarity - a.signalNameSimilarity;
+          }
+
           return b.numberSimilarity - a.numberSimilarity;
         }
 

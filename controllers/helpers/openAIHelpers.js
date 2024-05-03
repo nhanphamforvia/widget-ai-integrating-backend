@@ -7,9 +7,10 @@ const processDataInBatches = require("../../utils/processDataInBatches");
 const TEMP = 0.0;
 const deploymentName = process.env.OPEN_API_DEPLOYMENT_NAME;
 const REQ_PER_TIME = 30;
+const OPEN_AI_MAX_TOKENS = 8000;
 
 const EXISTING_AI_TESTCASE_ROLE = "You are a tester, checking for potential test case that match the proposal test content to validate requirement";
-const EXISTING_AI_TESTCASE_PROMPT = `In the criteria of boundary check to validate the requirement, choose which ID of one test case from Potential Test Cases that share the most similar purpose and meaning of the description of the Proposal Content\n<DATA_STRING>. \nRequirement to validate: <REQ_TEXT>.\ If match found, answer in the exact format: {# of Proposal Content}: {ID value}. If no match found, answer in the exact format {# of Proposal Content}: None`;
+const EXISTING_AI_TESTCASE_PROMPT = `Choose which ID of one test case from Potential Test Cases that share the most similar purpose and meaning of the description of the Proposal Content\n<DATA_STRING>. \nRequirement to validate: <REQ_TEXT>.\ If match found, answer in the exact format: {#}: {ID}, in which # is the number of the Proposal Content in the prompt, ID is the ID of the potential test case. If no match found, answer in the exact format {# of Proposal Content}: None, in which # is the number of the Proposal Content in the prompt`;
 
 const chatCompletion = async (messages, temperature = TEMP) => {
   try {
@@ -118,7 +119,7 @@ const executeCheckConsistency = async ({ visitedMap, checkQueue, prompt, role })
   };
 };
 
-const buildQueueAndCheckConsistency = async ({ requirements, MAX_CHARS = 4000, prompt, role, visitedMap }) => {
+const buildQueueAndCheckConsistency = async ({ requirements, maxCharsPerReq, prompt, role, visitedMap }) => {
   let checkQueue = [];
   const abortController = new AbortController();
 
@@ -165,7 +166,7 @@ const buildQueueAndCheckConsistency = async ({ requirements, MAX_CHARS = 4000, p
 
       charCount += nextStatementText.length;
 
-      if (charCount >= MAX_CHARS) {
+      if (charCount >= maxCharsPerReq) {
         checkQueue.push({ current: currentStatementText, currentId: currentArt.id, otherIds, others: otherStatementTexts });
 
         charCount = prompt.length + currentStatementText.length;
@@ -216,7 +217,7 @@ exports.useChatCompletionForConsistency = async (similarTextGroups, prompt, role
   for (let i = 0; i < groupsTotal; i++) {
     const { issues, issuesData, errors } = await buildQueueAndCheckConsistency({
       requirements: similarTextGroups[i],
-      MAX_CHARS: 4000,
+      maxCharsPerReq: OPEN_AI_MAX_TOKENS,
       prompt,
       role,
       visitedMap,
@@ -463,17 +464,17 @@ const consultAIForTestCaseOptions = async ({ requirementData, signalsWithValues,
   }
 };
 
-const getRelevantExistingTestCases = async ({ testCasesData, existingTestCasesByWords, existingTestCasesLookup }) => {
+const getRelevantExistingTestCases = async ({ testCasesData, existingTestCasesByWords, existingTestCasesLookup, signalNames }) => {
   try {
     testCasesData.forEach((tcData, i) => {
       tcData.index = i;
     });
 
     const potentialTestCasePairs = [];
-    const similarityThreshold = 0.3;
+    const similarityThreshold = 0.5;
 
     const tcCount = testCasesData.length;
-    const WORKERS_MAX = 2; // TODO need to find the max workers
+    const WORKERS_MAX = require("os").cpus().length - 1;
     const CONCUR_MAX = 50;
 
     let workers = [];
@@ -490,8 +491,8 @@ const getRelevantExistingTestCases = async ({ testCasesData, existingTestCasesBy
       });
     };
 
-    const createWorker = (concurTCs, existingTestCasesByWords, similarityThreshold) => {
-      const worker = new Worker("./controllers/helpers/worker.js", { workerData: { concurTCs, existingTestCasesByWords, similarityThreshold } });
+    const createWorker = (concurTCs, existingTestCasesByWords, similarityThreshold, signalNames) => {
+      const worker = new Worker("./controllers/helpers/worker.js", { workerData: { concurTCs, existingTestCasesByWords, similarityThreshold, signalNames } });
       worker.on("error", (err) => {
         throw err;
       });
@@ -505,7 +506,7 @@ const getRelevantExistingTestCases = async ({ testCasesData, existingTestCasesBy
       }
 
       if (workers.length < WORKERS_MAX && (concurTCs.length >= CONCUR_MAX || i === tcCount - 1)) {
-        const worker = createWorker(concurTCs, existingTestCasesByWords, similarityThreshold);
+        const worker = createWorker(concurTCs, existingTestCasesByWords, similarityThreshold, signalNames);
         workers.push(worker);
         concurTCs = [];
       }
@@ -556,6 +557,7 @@ const consultAISelectExistingTestCase = async (dataStr, requirmentData) => {
     }
 
     const potentialMatch = resData.data?.[0];
+
     return potentialMatch;
   } catch (err) {
     throw err;
@@ -650,6 +652,7 @@ const checkExistOrCreateTestCases = async ({ requirementData, signalsWithValues,
       testCasesData,
       existingTestCasesByWords,
       existingTestCasesLookup,
+      signalNames,
     });
     const [matchedExistingTestCases, failedMatching] = await getTestCasesMatches(potentialsWithProposalTestCases, requirementData);
 
@@ -659,14 +662,6 @@ const checkExistOrCreateTestCases = async ({ requirementData, signalsWithValues,
     });
 
     const { tcCreationRequired, matchedTCs } = extractTestCasesToCreateOrMatch(rematches);
-
-    tcCreationRequired.forEach(
-      (tc) =>
-        (tc.requirementData = {
-          id: requirementData.id,
-          uri: requirementData.uri,
-        })
-    );
 
     return {
       requirementData: requirementData,

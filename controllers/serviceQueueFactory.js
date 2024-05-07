@@ -14,8 +14,8 @@ const QUEUE_ITEM_STATES = {
 
 exports.useQueueFactory = () => {
   const queue = new Queue();
+
   let state = MACHINE_STATES.IDLE;
-  let progressingItem = null;
 
   const isBusy = () => {
     return state === MACHINE_STATES.BUSY;
@@ -24,7 +24,6 @@ exports.useQueueFactory = () => {
   const commenceQueueProcess = (queueItem) => {
     state = MACHINE_STATES.BUSY;
     queueItem.status = QUEUE_ITEM_STATES.RUNNING;
-    progressingItem = queueItem;
   };
 
   const resetServiceState = () => {
@@ -65,10 +64,6 @@ exports.useQueueFactory = () => {
     }
   };
 
-  const setItemProgress = (progress) => {
-    progressingItem["progress"] = progress;
-  };
-
   const getCompressedQueue = ({ tool = null, clientId = null }) => {
     let fileredQueueItems = queue.items;
 
@@ -80,13 +75,12 @@ exports.useQueueFactory = () => {
       fileredQueueItems = fileredQueueItems.filter((item) => item.clientId === clientId);
     }
 
-    return fileredQueueItems.map(({ clientId, sessionId, tool, requestedAt, data: { artifacts, dngWorkspace }, progress = null }) => ({
+    return fileredQueueItems.map(({ clientId, sessionId, tool, requestedAt, data: { artifacts, dngWorkspace } }) => ({
       requestedAt,
       clientId,
       sessionId,
       tool,
       dngWorkspace,
-      progress,
       artifactCount: artifacts.length,
     }));
   };
@@ -103,7 +97,6 @@ exports.useQueueFactory = () => {
     getCompressedQueue,
     finishRequest,
     deleteQueueItem,
-    setItemProgress,
   };
 };
 

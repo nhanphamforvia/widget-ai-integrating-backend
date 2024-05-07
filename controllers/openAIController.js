@@ -5,8 +5,7 @@ const { updateSession, createSession, deleteSession, getSession, STATUS } = requ
 const { useChatCompletionForConsistency, useChatCompletionForIndividualItem, useChatCompletionForTestCaseGeneration } = require("./helpers/openAIHelpers");
 
 // State Machine and Queue variables
-const { queue, subscribeToQueue, getNextRequest, isBusy, commenceQueueProcess, resetServiceState, getCompressedQueue, finishRequest, deleteQueueItem, setItemProgress } =
-  useQueueFactory();
+const { queue, subscribeToQueue, getNextRequest, isBusy, commenceQueueProcess, resetServiceState, getCompressedQueue, finishRequest, deleteQueueItem } = useQueueFactory();
 const finishedRequests = new Map();
 
 /* Main function to process requests */
@@ -24,15 +23,15 @@ const processNextRequest = async () => {
   let results;
   switch (tool) {
     case "consistency":
-      results = await useChatCompletionForConsistency(artifacts, prompt, role, setItemProgress);
+      results = await useChatCompletionForConsistency(artifacts, prompt, role);
       break;
     case "translate":
     case "toxic":
     case "quality":
-      results = await useChatCompletionForIndividualItem(artifacts, prompt, role, setItemProgress);
+      results = await useChatCompletionForIndividualItem(artifacts, prompt, role);
       break;
     case "test-cases-generation":
-      results = await useChatCompletionForTestCaseGeneration(artifacts, dataForTestCases, prompt, role, setItemProgress);
+      results = await useChatCompletionForTestCaseGeneration(artifacts, dataForTestCases, prompt, role);
       break;
     default:
       throw new AppError("Invalid tool specified", 400);

@@ -84,7 +84,7 @@ const executeCheckConsistency = async ({ visitedMap, checkQueue, prompt, role })
         }
 
         return {
-          issue: `(${currentId} - ${otherIds.join(", ")}) - ${message}`,
+          issue: `<strong>(${currentId} - ${otherIds.join(", ")})</strong> - ${message}`,
           issueData: {
             artId: currentId,
             otherIds: otherIds,
@@ -445,12 +445,17 @@ const consultAIForTestCaseOptions = async ({ requirementData, signalsWithValues,
 
     const testCaseOptionsStr = resData.data?.[0];
 
+    console.log("-------------------------------");
+    console.log(requirementData.id);
+    console.log(testCaseOptionsStr);
+    console.log("-------------------------------");
+
     const consultError = Object.values(CONSULT_ERRORS).find((value) => {
       return testCaseOptionsStr.includes(value);
     });
 
     if (consultError || parseLackConstraintsFlag(testCaseOptionsStr)) {
-      const msg = `Requirement <strong>${requirementData.id}</strong> is <strong>not testable</strong> due to ${consultError}`;
+      const msg = `Requirement <strong>${requirementData.id}</strong> is <strong>not testable</strong> due to ${consultError?.split("_")?.join(" ")}`;
       throw new Error(msg);
     }
 
@@ -669,7 +674,6 @@ const checkExistOrCreateTestCases = async ({ requirementData, signalsWithValues,
       matchedTCs,
     };
   } catch (err) {
-    console.error(err);
     throw err;
   }
 };
@@ -700,7 +704,7 @@ exports.useChatCompletionForTestCaseGeneration = async (artifacts, dataForTestCa
         } else {
           return {
             ...testCasesForRequirements,
-            errors: [...testCasesForRequirements.errors, res.reason],
+            errors: [...testCasesForRequirements.errors, typeof res.reason === "object" ? res.reason.message : res.reason],
           };
         }
       },

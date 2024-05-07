@@ -97,7 +97,10 @@ const executeCheckConsistency = async ({ visitedMap, checkQueue, prompt, role })
     }
   };
 
-  const progressHandler = ({ batchResponses }) => {};
+  const progressHandler = ({ currentIndex, totalIndices }) => {
+    const progress = ((currentIndex / totalIndices) * 100).toFixed(2);
+    setItemProgress(progress);
+  };
 
   const responses = await processDataInBatches(checkQueue, REQ_PER_TIME, promiseHandler, progressHandler, abortController);
 
@@ -206,7 +209,7 @@ const buildQueueAndCheckConsistency = async ({ requirements, maxCharsPerReq, pro
   };
 };
 
-exports.useChatCompletionForConsistency = async (similarTextGroups, prompt, role) => {
+exports.useChatCompletionForConsistency = async (similarTextGroups, prompt, role, setItemProgress) => {
   const groupsTotal = similarTextGroups.length;
 
   const visitedMap = new Map();
@@ -271,12 +274,12 @@ const individualPromiseHandler = (prompt, role) => async (art) => {
   }
 };
 
-exports.useChatCompletionForIndividualItem = async (artifacts, prompt, role, batchSize = REQ_PER_TIME) => {
+exports.useChatCompletionForIndividualItem = async (artifacts, prompt, role, batchSize = REQ_PER_TIME, setItemProgress) => {
   const abortController = new AbortController(); // TODO: Find a way so the client can cancel this while this is running!
 
   const progressHandler = ({ currentIndex, totalIndices }) => {
     const progress = ((currentIndex / totalIndices) * 100).toFixed(2);
-    // TODO: Find a way to let client get this progress info
+    setItemProgress(progress);
   };
 
   const results = await processDataInBatches(artifacts, batchSize, individualPromiseHandler(prompt, role), progressHandler, abortController);
@@ -408,7 +411,7 @@ const selectOutputDefinedTestCasesData = (testCasesData) => {
   }, []);
 };
 
-const consultAIForTestCaseOptions = async ({ requirementData, signalsWithValues, signalNames, prompt, role }) => {
+const consultAIForTestCasesGeneration = async ({ requirementData, signalsWithValues, signalNames, prompt, role }) => {
   const CONSULT_ERRORS = {
     lackConstraints: "LACK_CONSTRAINTS",
     signalValuesUndefined: "SIGNALS_POSSIBLE_VALUES_NOT_FOUND",
@@ -645,7 +648,7 @@ const extractTestCasesToCreateOrMatch = (rematches) => {
 
 const checkExistOrCreateTestCases = async ({ requirementData, signalsWithValues, signalNames, existingTestCasesByWords, existingTestCasesLookup, prompt, role }) => {
   try {
-    const testCasesData = await consultAIForTestCaseOptions({
+    const testCasesData = await consultAIForTestCasesGeneration({
       requirementData,
       signalsWithValues,
       signalNames,
@@ -678,7 +681,7 @@ const checkExistOrCreateTestCases = async ({ requirementData, signalsWithValues,
   }
 };
 
-exports.useChatCompletionForTestCaseGeneration = async (artifacts, dataForTestCases, prompt, role, batchSize = REQ_PER_TIME) => {
+exports.useChatCompletionForTestCaseGeneration = async (artifacts, dataForTestCases, prompt, role, batchSize = REQ_PER_TIME, setItemProgress) => {
   const abortController = new AbortController();
   const xmlParser = new XMLParser({ ignoreAttributes: false });
 
@@ -690,7 +693,10 @@ exports.useChatCompletionForTestCaseGeneration = async (artifacts, dataForTestCa
 
     const promiseHandler = async (requirementData) =>
       checkExistOrCreateTestCases({ requirementData, signalsWithValues, signalNames, existingTestCasesByWords, existingTestCasesLookup, prompt, role });
-    const progressHandler = ({}) => {};
+    const progressHandler = ({ currentIndex, totalIndices }) => {
+      const progress = ((currentIndex / totalIndices) * 100).toFixed(2);
+      setItemProgress(progress);
+    };
 
     const responses = await processDataInBatches(artifacts, batchSize, promiseHandler, progressHandler, abortController);
 

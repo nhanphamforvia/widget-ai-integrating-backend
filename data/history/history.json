@@ -8090,6 +8090,51 @@
       "duration": 4820,
       "status": "success",
       "tool": "test-cases-generation"
+    },
+    {
+      "id": "5c589084-8b90-42ca-bc7d-26c32a21e4e2",
+      "clientId": "5e465901-59cc-4370-bf0a-b8850fa17394",
+      "createdAt": "2024-05-07T06:29:41.381Z",
+      "finishedAt": "2024-05-07T06:29:44.292Z",
+      "duration": 2911,
+      "status": "success",
+      "tool": "quality"
+    },
+    {
+      "id": "9fa113d8-5259-4d88-8543-05bd814041fd",
+      "clientId": "5e465901-59cc-4370-bf0a-b8850fa17394",
+      "createdAt": "2024-05-07T06:30:02.035Z",
+      "finishedAt": "2024-05-07T06:30:21.669Z",
+      "duration": 19634,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "ce8b9fa7-2be5-4d8d-8dad-cfa2495dac10",
+      "clientId": "5e465901-59cc-4370-bf0a-b8850fa17394",
+      "createdAt": "2024-05-07T06:32:55.405Z",
+      "finishedAt": "2024-05-07T06:33:11.690Z",
+      "duration": 16285,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "a6f920e0-1064-4d39-910b-b55d2aa4efb9",
+      "clientId": "5e465901-59cc-4370-bf0a-b8850fa17394",
+      "createdAt": "2024-05-07T06:34:02.079Z",
+      "finishedAt": "2024-05-07T06:34:25.856Z",
+      "duration": 23777,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "0a6838af-ecfc-42a0-9a06-d97e4b8e8139",
+      "clientId": "5e465901-59cc-4370-bf0a-b8850fa17394",
+      "createdAt": "2024-05-07T06:41:45.507Z",
+      "finishedAt": "2024-05-07T06:42:00.754Z",
+      "duration": 15247,
+      "status": "success",
+      "tool": "test-cases-generation"
     }
   ]
 }

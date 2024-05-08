@@ -14,25 +14,30 @@ const QUEUE_ITEM_STATES = {
 };
 
 exports.useQueueFactory = () => {
-  const maxConcurrentItems = 1;
+  const maxConcurrentItems = 3;
   const queue = new Queue(maxConcurrentItems);
 
   let state = MACHINE_STATES.IDLE;
-  let itemInProgress = null;
 
   const isBusy = () => {
     return state === MACHINE_STATES.BUSY;
   };
 
+  const itemInConcurrentToProcessNext = () => {
+    return queue.getConcurrentItems().find((item) => item.status === QUEUE_ITEM_STATES.PENDING);
+  };
+
   const commenceQueueProcess = (queueItem) => {
     state = MACHINE_STATES.BUSY;
     queueItem.status = QUEUE_ITEM_STATES.RUNNING;
-    itemInProgress = queueItem;
-    itemInProgress.progress = 0;
+    queueItem.progress = 0;
   };
 
-  const updateItemProgress = (progress) => {
-    itemInProgress.progress = progress;
+  const updateItemProgress = (sessionId, progress) => {
+    const itemInProgress = queue.getConcurrentItems().find((item) => item.sessionId === sessionId);
+    if (itemInProgress) {
+      itemInProgress.progress = progress;
+    }
   };
 
   const resetServiceState = () => {
@@ -52,6 +57,7 @@ exports.useQueueFactory = () => {
     itemToFinish.progress = 100;
 
     const index = queue.findItemIndex((item) => item.sessionId === itemToFinish.sessionId && item.clientId === itemToFinish.clientId, { inConcurrent: true });
+
     if (index < 0) return;
 
     queue.removeItem(index);
@@ -70,7 +76,7 @@ exports.useQueueFactory = () => {
   };
 
   const deleteQueueItem = (sessionId, clientId) => {
-    const index = queue.findItemIndex((item) => item.sessionId === sessionId && item.clientId === clientId);
+    const index = queue.findItemIndex((item) => item.sessionId === sessionId && item.clientId === clientId, { inConcurrent: true });
     if (index < 0) return;
 
     queue.removeItem(index);
@@ -128,6 +134,7 @@ exports.useQueueFactory = () => {
     getCompressedQueue,
     finishRequest,
     deleteQueueItem,
+    itemInConcurrentToProcessNext,
     updateItemProgress,
   };
 };

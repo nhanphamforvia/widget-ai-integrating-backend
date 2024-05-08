@@ -31,9 +31,14 @@ class Queue {
     return this.items.length === 0;
   }
 
-  findItemIndex(findCb, { inConcurrent = false }) {
+  getConcurrentItems() {
+    if (this.items.length <= this.maxConcurrentItems) return this.items;
+    return [...this.items.slice(0, this.maxConcurrentItems)];
+  }
+
+  findItemIndex(findCb, { inConcurrent = false } = {}) {
     if (inConcurrent) {
-      return [...this.items.slice(0, this.maxConcurrentItems), ...this.items.slice(this.maxConcurrentItems + 1)].findIndex(findCb);
+      return this.getConcurrentItems().findIndex(findCb);
     }
 
     return this.items.findIndex(findCb);

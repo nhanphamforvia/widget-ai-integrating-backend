@@ -1,4 +1,4 @@
-const processDataInBatches = async (items, batchSize, promiseHandler, progressFn = null, abortController = null) => {
+const processDataInBatches = async (items, batchSize, promiseHandler, progressFn = null, abortController = null, processId = null) => {
   const responses = [];
   const itemsLength = items.length;
 
@@ -14,6 +14,7 @@ const processDataInBatches = async (items, batchSize, promiseHandler, progressFn
         progressFn({
           responses,
           batchResponses,
+          processId,
           currentIndex: i,
           totalIndices: itemsLength,
         });

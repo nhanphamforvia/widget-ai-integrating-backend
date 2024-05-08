@@ -204,7 +204,7 @@ const buildQueueAndCheckConsistency = async ({ requirements, maxCharsPerReq, pro
   };
 };
 
-exports.useChatCompletionForConsistency = async (similarTextGroups, prompt, role, progressHandler) => {
+exports.useChatCompletionForConsistency = async (similarTextGroups, prompt, role, progressHandler, sessionId) => {
   const groupsTotal = similarTextGroups.length;
 
   const visitedMap = new Map();
@@ -225,7 +225,7 @@ exports.useChatCompletionForConsistency = async (similarTextGroups, prompt, role
     consistencyIssuesData.push(...issuesData);
     consistencyCheckErrors.push(...errors);
 
-    progressHandler({ currentIndex: i, totalIndices: groupsTotal });
+    progressHandler({ currentIndex: i, totalIndices: groupsTotal, processId: sessionId });
   }
 
   return {
@@ -271,9 +271,9 @@ const individualPromiseHandler = (prompt, role) => async (art) => {
   }
 };
 
-exports.useChatCompletionForIndividualItem = async (artifacts, prompt, role, progressHandler, batchSize = REQ_PER_TIME) => {
+exports.useChatCompletionForIndividualItem = async (artifacts, prompt, role, progressHandler, sessionId, batchSize = REQ_PER_TIME) => {
   const abortController = new AbortController(); // TODO: Find a way so the client can cancel this while this is running!
-  const results = await processDataInBatches(artifacts, batchSize, individualPromiseHandler(prompt, role), progressHandler, abortController);
+  const results = await processDataInBatches(artifacts, batchSize, individualPromiseHandler(prompt, role), progressHandler, abortController, sessionId);
 
   return results.reduce(
     (dataAndError, res) => {
@@ -672,7 +672,7 @@ const checkExistOrCreateTestCases = async ({ requirementData, signalsWithValues,
   }
 };
 
-exports.useChatCompletionForTestCaseGeneration = async (artifacts, dataForTestCases, prompt, role, progressHandler, batchSize = REQ_PER_TIME) => {
+exports.useChatCompletionForTestCaseGeneration = async (artifacts, dataForTestCases, prompt, role, progressHandler, sessionId, batchSize = REQ_PER_TIME) => {
   const abortController = new AbortController();
   const xmlParser = new XMLParser({ ignoreAttributes: false });
 
@@ -685,7 +685,7 @@ exports.useChatCompletionForTestCaseGeneration = async (artifacts, dataForTestCa
     const promiseHandler = async (requirementData) =>
       checkExistOrCreateTestCases({ requirementData, signalsWithValues, signalNames, existingTestCasesByWords, existingTestCasesLookup, prompt, role });
 
-    const responses = await processDataInBatches(artifacts, batchSize, promiseHandler, progressHandler, abortController);
+    const responses = await processDataInBatches(artifacts, batchSize, promiseHandler, progressHandler, abortController, sessionId);
 
     const { testCases, errors } = responses.reduce(
       (testCasesForRequirements, res) => {

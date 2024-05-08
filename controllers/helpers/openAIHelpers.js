@@ -439,10 +439,10 @@ const consultAIForTestCasesGeneration = async ({ requirementData, signalsWithVal
 
     const testCaseOptionsStr = resData.data?.[0];
 
-    console.log("-------------------------------");
-    console.log(requirementData.id);
-    console.log(testCaseOptionsStr);
-    console.log("-------------------------------");
+    // console.log("-------------------------------");
+    // console.log(requirementData.id);
+    // console.log(testCaseOptionsStr);
+    // console.log("-------------------------------");
 
     const consultError = Object.values(CONSULT_ERRORS).find((value) => {
       return testCaseOptionsStr.includes(value);

@@ -8693,6 +8693,186 @@
       "duration": 8152,
       "status": "success",
       "tool": "consistency"
+    },
+    {
+      "id": "19282321-125b-4577-a4ba-d8440300aa8c",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T04:39:28.572Z",
+      "finishedAt": "2024-05-08T04:39:34.056Z",
+      "duration": 5484,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "3223c3e5-d1cc-4fea-916a-6e5360d74ed2",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T04:39:58.281Z",
+      "finishedAt": "2024-05-08T04:40:02.161Z",
+      "duration": 3880,
+      "status": "success",
+      "tool": "quality"
+    },
+    {
+      "id": "2ff76d5b-ecb7-4434-9732-6113631aad9f",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T04:40:23.811Z",
+      "finishedAt": "2024-05-08T04:40:37.376Z",
+      "duration": 13565,
+      "status": "success",
+      "tool": "toxic"
+    },
+    {
+      "id": "e23fac7b-3424-48fd-a3c8-686d52c9475c",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T04:48:34.632Z",
+      "finishedAt": "2024-05-08T04:48:44.626Z",
+      "duration": 9994,
+      "status": "success",
+      "tool": "translate"
+    },
+    {
+      "id": "812434f7-484f-4a70-b53d-733127992b5f",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T04:48:36.882Z",
+      "finishedAt": "2024-05-08T04:50:32.403Z",
+      "duration": 115521,
+      "status": "success",
+      "tool": "consistency"
+    },
+    {
+      "id": "f2a63458-d470-4c09-badb-508368edf2af",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T04:48:38.089Z",
+      "finishedAt": "2024-05-08T04:50:38.623Z",
+      "duration": 120534,
+      "status": "success",
+      "tool": "toxic"
+    },
+    {
+      "id": "084db102-55f0-40f4-bd6d-bc79b5f5adcf",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T04:48:39.398Z",
+      "finishedAt": "2024-05-08T04:51:16.718Z",
+      "duration": 157320,
+      "status": "success",
+      "tool": "quality"
+    },
+    {
+      "id": "6c449d87-aa56-4a4f-aa01-c5b121991559",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T04:48:43.965Z",
+      "finishedAt": "2024-05-08T04:51:19.507Z",
+      "duration": 155542,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "b2e83a2b-ed17-4499-b02c-9a8cef6788e5",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T04:57:53.110Z",
+      "finishedAt": "2024-05-08T04:58:03.518Z",
+      "duration": 10408,
+      "status": "success",
+      "tool": "translate"
+    },
+    {
+      "id": "4dab514c-140a-4bff-ad13-a86507be49ee",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T04:57:55.118Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "consistency"
+    },
+    {
+      "id": "cb376abb-9b22-402f-ac27-b06518d31018",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T04:57:56.911Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "toxic"
+    },
+    {
+      "id": "94a2d7ec-8d98-4164-8ed0-c0f318d02594",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T04:57:58.004Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "quality"
+    },
+    {
+      "id": "196fefe2-bd22-4735-9e9a-dfe84c8a12a5",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T05:06:32.601Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "translate"
+    },
+    {
+      "id": "67c63918-1929-4182-ad61-588a0464ac9d",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T05:06:35.651Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "consistency"
+    },
+    {
+      "id": "bdb5d493-8e88-4080-9322-578833d2d93b",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T05:06:37.112Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "toxic"
+    },
+    {
+      "id": "d92a2164-8cd5-4889-8bd8-804ed96a71c4",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T05:06:38.223Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "quality"
+    },
+    {
+      "id": "18bc29ab-c762-483e-b5fa-0b5adac51da2",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T05:08:17.392Z",
+      "finishedAt": "2024-05-08T05:08:19.322Z",
+      "duration": 1930,
+      "status": "success",
+      "tool": "translate"
+    },
+    {
+      "id": "805ca917-2b75-43fd-8048-2f2d0aaf30e2",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T05:08:38.752Z",
+      "finishedAt": "2024-05-08T05:08:51.909Z",
+      "duration": 13157,
+      "status": "success",
+      "tool": "translate"
+    },
+    {
+      "id": "d07f6801-3780-4791-83cc-79a95a56ceff",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T05:08:40.346Z",
+      "finishedAt": "2024-05-08T05:08:58.221Z",
+      "duration": 17875,
+      "status": "success",
+      "tool": "toxic"
+    },
+    {
+      "id": "2bda6b46-ccf4-4786-921e-02ea15062485",
+      "clientId": "5dbcd7c3-6c86-4440-b608-c3fc3de4cfas",
+      "createdAt": "2024-05-08T05:08:41.534Z",
+      "finishedAt": "2024-05-08T05:09:05.349Z",
+      "duration": 23815,
+      "status": "success",
+      "tool": "quality"
     }
   ]
 }

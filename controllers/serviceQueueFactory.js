@@ -14,7 +14,8 @@ const QUEUE_ITEM_STATES = {
 };
 
 exports.useQueueFactory = () => {
-  const queue = new Queue();
+  const maxConcurrentItems = 1;
+  const queue = new Queue(maxConcurrentItems);
 
   let state = MACHINE_STATES.IDLE;
   let itemInProgress = null;
@@ -44,12 +45,16 @@ exports.useQueueFactory = () => {
     queue.enqueue(jobData);
   };
 
-  const finishRequest = () => {
+  const finishRequest = (itemToFinish) => {
     if (queue.isEmpty()) return;
 
-    const item = queue.dequeue();
-    item.status = QUEUE_ITEM_STATES.DONE;
-    item.progress = 100;
+    itemToFinish.status = QUEUE_ITEM_STATES.DONE;
+    itemToFinish.progress = 100;
+
+    const index = queue.findItemIndex((item) => item.sessionId === itemToFinish.sessionId && item.clientId === itemToFinish.clientId, { inConcurrent: true });
+    if (index < 0) return;
+
+    queue.removeItem(index);
   };
 
   const getNextRequest = () => {

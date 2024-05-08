@@ -1,6 +1,7 @@
 class Queue {
-  constructor() {
+  constructor(maxConcurrentItems) {
     this.items = []; // Initialize an empty array to store queue elements
+    this.maxConcurrentItems = maxConcurrentItems;
   }
 
   enqueue(item) {
@@ -30,7 +31,11 @@ class Queue {
     return this.items.length === 0;
   }
 
-  findItemIndex(findCb) {
+  findItemIndex(findCb, { inConcurrent = false }) {
+    if (inConcurrent) {
+      return [...this.items.slice(0, this.maxConcurrentItems), ...this.items.slice(this.maxConcurrentItems + 1)].findIndex(findCb);
+    }
+
     return this.items.findIndex(findCb);
   }
 

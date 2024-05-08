@@ -51,14 +51,14 @@ const processNextRequest = async () => {
   const session = getSession(sessionId);
 
   if (session.status === STATUS.CANCELLED) {
-    resetServiceState();
+    resetServiceState(request);
     processNextRequest();
 
     return;
   }
 
   await updateSession(sessionId, { status: STATUS.SUCCESS });
-  finishRequest();
+  finishRequest(request);
 
   const doneRequestsForClientId = finishedRequests.get(clientId) || [];
   finishedRequests.set(clientId, [

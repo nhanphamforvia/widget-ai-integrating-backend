@@ -22,7 +22,7 @@ exports.useQueueFactory = () => {
     return state === MACHINE_STATES.BUSY;
   };
 
-  const getNextConcurrentRequest = () => {
+  const itemInConcurrentToProcessNext = () => {
     return queue.getConcurrentItems().find((item) => item.status === QUEUE_ITEM_STATES.PENDING);
   };
 
@@ -133,7 +133,7 @@ exports.useQueueFactory = () => {
     getCompressedQueue,
     finishRequest,
     deleteQueueItem,
-    getNextConcurrentRequest,
+    itemInConcurrentToProcessNext,
     updateItemProgress,
   };
 };

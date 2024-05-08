@@ -32,8 +32,7 @@ class Queue {
   }
 
   getConcurrentItems() {
-    if (this.items.length <= this.maxConcurrentItems) return this.items;
-    return [...this.items.slice(0, this.maxConcurrentItems)];
+    return this.items.slice(0, this.maxConcurrentItems);
   }
 
   findItemIndex(findCb, { inConcurrent = false } = {}) {

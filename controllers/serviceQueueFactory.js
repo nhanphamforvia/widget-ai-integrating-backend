@@ -14,7 +14,7 @@ const QUEUE_ITEM_STATES = {
 };
 
 exports.useQueueFactory = () => {
-  const maxConcurrentItems = 3;
+  const maxConcurrentItems = 1;
   const queue = new Queue(maxConcurrentItems);
 
   let state = MACHINE_STATES.IDLE;

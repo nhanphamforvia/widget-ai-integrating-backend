@@ -16,14 +16,14 @@ const {
   finishRequest,
   deleteQueueItem,
   updateItemProgress,
-  itemInConcurrentToProcessNext,
+  getNextConcurrentRequest,
 } = useQueueFactory();
 const finishedRequests = new Map();
 
 /* Main function to process requests */
 const processNextRequests = async () => {
   while (true) {
-    const request = itemInConcurrentToProcessNext();
+    const request = getNextConcurrentRequest();
     if (request == null || queue.isEmpty()) break;
 
     commenceQueueProcess(request);

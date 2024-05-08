@@ -8,7 +8,6 @@ const { useChatCompletionForConsistency, useChatCompletionForIndividualItem, use
 const {
   queue,
   subscribeToQueue,
-  getNextRequest,
   isBusy,
   commenceQueueProcess,
   resetServiceState,

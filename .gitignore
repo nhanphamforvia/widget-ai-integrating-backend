@@ -4,4 +4,3 @@ server.cert
 server.key
 server.pfx
 server.pass
-history.json

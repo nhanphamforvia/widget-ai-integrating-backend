@@ -1,3 +1,4 @@
+const { STATUS } = require("../data/history/historyOperators");
 const Queue = require("../utils/Queue");
 const catchAsync = require("../utils/catchAsync");
 
@@ -16,6 +17,7 @@ exports.useQueueFactory = () => {
   const queue = new Queue();
 
   let state = MACHINE_STATES.IDLE;
+  let itemInProgress = null;
 
   const isBusy = () => {
     return state === MACHINE_STATES.BUSY;
@@ -24,6 +26,12 @@ exports.useQueueFactory = () => {
   const commenceQueueProcess = (queueItem) => {
     state = MACHINE_STATES.BUSY;
     queueItem.status = QUEUE_ITEM_STATES.RUNNING;
+    itemInProgress = queueItem;
+    itemInProgress.progress = 0;
+  };
+
+  const updateItemProgress = (progress) => {
+    itemInProgress.progress = progress;
   };
 
   const resetServiceState = () => {
@@ -32,6 +40,7 @@ exports.useQueueFactory = () => {
 
   const subscribeToQueue = (jobData) => {
     jobData.status = QUEUE_ITEM_STATES.PENDING;
+    jobData.progress = 0;
     queue.enqueue(jobData);
   };
 
@@ -40,6 +49,7 @@ exports.useQueueFactory = () => {
 
     const item = queue.dequeue();
     item.status = QUEUE_ITEM_STATES.DONE;
+    item.progress = 100;
   };
 
   const getNextRequest = () => {
@@ -64,7 +74,7 @@ exports.useQueueFactory = () => {
     }
   };
 
-  const getCompressedQueue = ({ tool = null, clientId = null }) => {
+  const getCompressedQueue = ({ tool = null, clientId = null, forProgress = false }) => {
     let fileredQueueItems = queue.items;
 
     if (tool != null) {
@@ -75,13 +85,29 @@ exports.useQueueFactory = () => {
       fileredQueueItems = fileredQueueItems.filter((item) => item.clientId === clientId);
     }
 
-    return fileredQueueItems.map(({ clientId, sessionId, tool, requestedAt, data: { artifacts, dngWorkspace } }) => ({
+    if (forProgress) {
+      fileredQueueItems = fileredQueueItems.filter((item) => {
+        return item.status === QUEUE_ITEM_STATES.RUNNING || item.status === QUEUE_ITEM_STATES.DONE;
+      });
+
+      return fileredQueueItems.map(({ clientId, sessionId, tool, status, progress = null }) => ({
+        clientId,
+        sessionId,
+        status,
+        progress,
+        tool,
+      }));
+    }
+
+    return fileredQueueItems.map(({ clientId, sessionId, tool, requestedAt, data: { artifacts, dngWorkspace }, status, progress = null }) => ({
       requestedAt,
       clientId,
       sessionId,
       tool,
       dngWorkspace,
       artifactCount: artifacts.length,
+      status,
+      progress,
     }));
   };
 
@@ -97,6 +123,7 @@ exports.useQueueFactory = () => {
     getCompressedQueue,
     finishRequest,
     deleteQueueItem,
+    updateItemProgress,
   };
 };
 

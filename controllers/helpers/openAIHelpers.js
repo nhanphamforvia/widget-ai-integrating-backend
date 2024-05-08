@@ -97,12 +97,7 @@ const executeCheckConsistency = async ({ visitedMap, checkQueue, prompt, role })
     }
   };
 
-  const progressHandler = ({ currentIndex, totalIndices }) => {
-    const progress = ((currentIndex / totalIndices) * 100).toFixed(2);
-    console.log(progress);
-  };
-
-  const responses = await processDataInBatches(checkQueue, REQ_PER_TIME, promiseHandler, progressHandler, abortController);
+  const responses = await processDataInBatches(checkQueue, REQ_PER_TIME, promiseHandler, null, abortController);
 
   responses.forEach((res) => {
     if (res.status === "fulfilled" && res.value != null) {
@@ -209,7 +204,7 @@ const buildQueueAndCheckConsistency = async ({ requirements, maxCharsPerReq, pro
   };
 };
 
-exports.useChatCompletionForConsistency = async (similarTextGroups, prompt, role) => {
+exports.useChatCompletionForConsistency = async (similarTextGroups, prompt, role, progressHandler) => {
   const groupsTotal = similarTextGroups.length;
 
   const visitedMap = new Map();
@@ -229,6 +224,8 @@ exports.useChatCompletionForConsistency = async (similarTextGroups, prompt, role
     consistencyIssues.push(...issues);
     consistencyIssuesData.push(...issuesData);
     consistencyCheckErrors.push(...errors);
+
+    progressHandler({ currentIndex: i, totalIndices: groupsTotal });
   }
 
   return {
@@ -274,14 +271,8 @@ const individualPromiseHandler = (prompt, role) => async (art) => {
   }
 };
 
-exports.useChatCompletionForIndividualItem = async (artifacts, prompt, role, batchSize = REQ_PER_TIME) => {
+exports.useChatCompletionForIndividualItem = async (artifacts, prompt, role, progressHandler, batchSize = REQ_PER_TIME) => {
   const abortController = new AbortController(); // TODO: Find a way so the client can cancel this while this is running!
-
-  const progressHandler = ({ currentIndex, totalIndices }) => {
-    const progress = ((currentIndex / totalIndices) * 100).toFixed(2);
-    console.log(progress);
-  };
-
   const results = await processDataInBatches(artifacts, batchSize, individualPromiseHandler(prompt, role), progressHandler, abortController);
 
   return results.reduce(
@@ -681,7 +672,7 @@ const checkExistOrCreateTestCases = async ({ requirementData, signalsWithValues,
   }
 };
 
-exports.useChatCompletionForTestCaseGeneration = async (artifacts, dataForTestCases, prompt, role, batchSize = REQ_PER_TIME) => {
+exports.useChatCompletionForTestCaseGeneration = async (artifacts, dataForTestCases, prompt, role, progressHandler, batchSize = REQ_PER_TIME) => {
   const abortController = new AbortController();
   const xmlParser = new XMLParser({ ignoreAttributes: false });
 
@@ -693,10 +684,6 @@ exports.useChatCompletionForTestCaseGeneration = async (artifacts, dataForTestCa
 
     const promiseHandler = async (requirementData) =>
       checkExistOrCreateTestCases({ requirementData, signalsWithValues, signalNames, existingTestCasesByWords, existingTestCasesLookup, prompt, role });
-    const progressHandler = ({ currentIndex, totalIndices }) => {
-      const progress = ((currentIndex / totalIndices) * 100).toFixed(2);
-      console.log(progress);
-    };
 
     const responses = await processDataInBatches(artifacts, batchSize, promiseHandler, progressHandler, abortController);
 

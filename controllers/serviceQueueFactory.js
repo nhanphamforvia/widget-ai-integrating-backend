@@ -1,4 +1,3 @@
-const { STATUS } = require("../data/history/historyOperators");
 const Queue = require("../utils/Queue");
 const catchAsync = require("../utils/catchAsync");
 
@@ -76,7 +75,7 @@ exports.useQueueFactory = () => {
   };
 
   const deleteQueueItem = (sessionId, clientId) => {
-    const index = queue.findItemIndex((item) => item.sessionId === sessionId && item.clientId === clientId, { inConcurrent: true });
+    const index = queue.findItemIndex((item) => item.sessionId === sessionId && item.clientId === clientId, { inConcurrent: false });
     if (index < 0) return;
 
     queue.removeItem(index);

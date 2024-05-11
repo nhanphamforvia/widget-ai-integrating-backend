@@ -22,7 +22,7 @@ exports.useQueueFactory = () => {
     return state === MACHINE_STATES.BUSY;
   };
 
-  const itemInConcurrentToProcessNext = () => {
+  const getNextConcurrentRequest = () => {
     return queue.getConcurrentItems().find((item) => item.status === QUEUE_ITEM_STATES.PENDING);
   };
 
@@ -30,6 +30,7 @@ exports.useQueueFactory = () => {
     state = MACHINE_STATES.BUSY;
     queueItem.status = QUEUE_ITEM_STATES.RUNNING;
     queueItem.progress = 0;
+    queueItem.abortController = new AbortController();
   };
 
   const updateItemProgress = (sessionId, progress) => {
@@ -78,7 +79,12 @@ exports.useQueueFactory = () => {
     const index = queue.findItemIndex((item) => item.sessionId === sessionId && item.clientId === clientId, { inConcurrent: false });
     if (index < 0) return;
 
-    queue.removeItem(index);
+    const [item] = queue.removeItem(index);
+
+    if (item != null && item.abortController) {
+      item.abortController.abort();
+    }
+
     if (queue.isEmpty()) {
       state = MACHINE_STATES.IDLE;
     }
@@ -133,7 +139,7 @@ exports.useQueueFactory = () => {
     getCompressedQueue,
     finishRequest,
     deleteQueueItem,
-    itemInConcurrentToProcessNext,
+    getNextConcurrentRequest,
     updateItemProgress,
   };
 };

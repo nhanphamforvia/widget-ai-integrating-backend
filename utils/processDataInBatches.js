@@ -7,7 +7,7 @@ const processDataInBatches = async (items, batchSize, promiseHandler, progressFn
     const batch = items.slice(i, end);
 
     try {
-      const batchResponses = await Promise.allSettled(batch.map(promiseHandler));
+      const batchResponses = await Promise.allSettled(batch.map((item) => promiseHandler(item, abortController)));
       responses.push(...batchResponses);
 
       if (progressFn && typeof progressFn === "function") {

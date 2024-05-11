@@ -44,7 +44,7 @@ class Queue {
   }
 
   removeItem(index) {
-    this.items.splice(index, 1);
+    return this.items.splice(index, 1);
   }
 
   printQueue() {

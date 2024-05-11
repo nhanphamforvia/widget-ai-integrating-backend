@@ -12,8 +12,12 @@ const OPEN_AI_MAX_TOKENS = 8000;
 const EXISTING_AI_TESTCASE_ROLE = "You are a tester, checking for potential test case that match the proposal test content to validate requirement";
 const EXISTING_AI_TESTCASE_PROMPT = `Choose which ID of one test case from Potential Test Cases that share the most similar purpose and meaning of the description of the Proposal Content\n<DATA_STRING>. \nRequirement to validate: <REQ_TEXT>.\ If match found, answer in the exact format: {#}: {ID}, in which # is the number of the Proposal Content in the prompt, ID is the ID of the potential test case. If no match found, answer in the exact format {# of Proposal Content}: None, in which # is the number of the Proposal Content in the prompt`;
 
-const chatCompletion = async (messages, temperature = TEMP) => {
+const chatCompletion = async (messages, temperature = TEMP, { signal = null }) => {
   try {
+    if (signal != null && signal.aborted) {
+      return null;
+    }
+
     const result = await openAIClient.getChatCompletions(deploymentName, messages, { temperature });
 
     if (result.choices == null) {
@@ -45,16 +49,14 @@ const parsePairsWithIssuesOnly = (string) => {
   return result;
 };
 
-const executeCheckConsistency = async ({ visitedMap, checkQueue, prompt, role }) => {
+const executeCheckConsistency = async ({ visitedMap, checkQueue, prompt, role, abortController }) => {
   const REQ_PER_TIME = 30;
 
   const issues = [];
   const issuesData = [];
   const errors = [];
 
-  const abortController = new AbortController();
-
-  const promiseHandler = async ({ current, others, otherIds, currentId }) => {
+  const promiseHandler = async ({ current, others, otherIds, currentId }, abortController) => {
     const visitedKey = `${currentId}: ${otherIds.join(",")}`;
     if (visitedMap.has(visitedKey)) {
       return null;
@@ -74,7 +76,7 @@ const executeCheckConsistency = async ({ visitedMap, checkQueue, prompt, role })
     ];
 
     try {
-      const resData = await chatCompletion(messages, TEMP);
+      const resData = await chatCompletion(messages, TEMP, { signal: abortController?.signal });
 
       if (resData.status === "success") {
         const message = resData.data[0];
@@ -117,9 +119,8 @@ const executeCheckConsistency = async ({ visitedMap, checkQueue, prompt, role })
   };
 };
 
-const buildQueueAndCheckConsistency = async ({ requirements, maxCharsPerReq, prompt, role, visitedMap }) => {
+const buildQueueAndCheckConsistency = async ({ requirements, maxCharsPerReq, prompt, role, visitedMap, abortController }) => {
   let checkQueue = [];
-  const abortController = new AbortController();
 
   const REQ_PER_TIME = 30;
   const artsCount = requirements.length;
@@ -135,6 +136,7 @@ const buildQueueAndCheckConsistency = async ({ requirements, maxCharsPerReq, pro
         checkQueue,
         prompt,
         role,
+        abortController,
       });
 
       checkQueue = [];
@@ -204,7 +206,7 @@ const buildQueueAndCheckConsistency = async ({ requirements, maxCharsPerReq, pro
   };
 };
 
-exports.useChatCompletionForConsistency = async (similarTextGroups, prompt, role, progressHandler, sessionId) => {
+exports.useChatCompletionForConsistency = async (similarTextGroups, prompt, role, progressHandler, sessionId, { abortController = null }) => {
   const groupsTotal = similarTextGroups.length;
 
   const visitedMap = new Map();
@@ -219,6 +221,7 @@ exports.useChatCompletionForConsistency = async (similarTextGroups, prompt, role
       prompt,
       role,
       visitedMap,
+      abortController,
     });
 
     consistencyIssues.push(...issues);
@@ -239,7 +242,7 @@ exports.useChatCompletionForConsistency = async (similarTextGroups, prompt, role
 /* END: CONSISTENCY */
 
 /* START: Translate, Toxic and Quality */
-const individualPromiseHandler = (prompt, role) => async (art) => {
+const individualPromiseHandler = (prompt, role) => async (art, abortController) => {
   const messages = [
     {
       role: "system",
@@ -252,7 +255,7 @@ const individualPromiseHandler = (prompt, role) => async (art) => {
   ];
 
   try {
-    const resData = await chatCompletion(messages, TEMP);
+    const resData = await chatCompletion(messages, TEMP, { signal: abortController?.signal });
 
     if (resData.status === "success") {
       const message = resData.data[0];
@@ -271,8 +274,7 @@ const individualPromiseHandler = (prompt, role) => async (art) => {
   }
 };
 
-exports.useChatCompletionForIndividualItem = async (artifacts, prompt, role, progressHandler, sessionId, batchSize = REQ_PER_TIME) => {
-  const abortController = new AbortController(); // TODO: Find a way so the client can cancel this while this is running!
+exports.useChatCompletionForIndividualItem = async (artifacts, prompt, role, progressHandler, sessionId, { batchSize = REQ_PER_TIME, abortController = null }) => {
   const results = await processDataInBatches(artifacts, batchSize, individualPromiseHandler(prompt, role), progressHandler, abortController, sessionId);
 
   return results.reduce(
@@ -402,7 +404,7 @@ const selectOutputDefinedTestCasesData = (testCasesData) => {
   }, []);
 };
 
-const consultAIForTestCasesGeneration = async ({ requirementData, signalsWithValues, signalNames, prompt, role }) => {
+const consultAIForTestCasesGeneration = async ({ requirementData, signalsWithValues, signalNames, prompt, role, abortController }) => {
   const CONSULT_ERRORS = {
     lackConstraints: "LACK_CONSTRAINTS",
     signalValuesUndefined: "SIGNALS_POSSIBLE_VALUES_NOT_FOUND",
@@ -426,7 +428,7 @@ const consultAIForTestCasesGeneration = async ({ requirementData, signalsWithVal
   ];
 
   try {
-    const resData = await chatCompletion(messages, TEMP);
+    const resData = await chatCompletion(messages, TEMP, { signal: abortController?.signal });
 
     if (resData.status !== "success") {
       const message = resData.data[0];
@@ -536,7 +538,7 @@ const getRelevantExistingTestCases = async ({ testCasesData, existingTestCasesBy
   }
 };
 
-const consultAISelectExistingTestCase = async (dataStr, requirmentData) => {
+const consultAISelectExistingTestCase = async (dataStr, requirmentData, abortController) => {
   const messages = [
     {
       role: "system",
@@ -549,7 +551,7 @@ const consultAISelectExistingTestCase = async (dataStr, requirmentData) => {
   ];
 
   try {
-    const resData = await chatCompletion(messages, TEMP);
+    const resData = await chatCompletion(messages, TEMP, { signal: abortController?.signal });
 
     if (resData.status !== "success") {
       throw new Error("Requirement Analysis for Testcases failure");
@@ -587,7 +589,7 @@ const splitPromiseSettledResponses = (responses) => {
   return [successList, failList];
 };
 
-const getTestCasesMatches = async (potentialsWithProposalTestCases, requirementData) => {
+const getTestCasesMatches = async (potentialsWithProposalTestCases, requirementData, abortController) => {
   const SLIDE_WIDTH = 5;
 
   const promptsData = potentialsWithProposalTestCases.map((item) => {
@@ -596,7 +598,7 @@ const getTestCasesMatches = async (potentialsWithProposalTestCases, requirementD
     )}\n\n`;
   });
 
-  const promiseHandler = async (dataStr) => consultAISelectExistingTestCase(dataStr, requirementData);
+  const promiseHandler = async (dataStr, abortController) => consultAISelectExistingTestCase(dataStr, requirementData, abortController);
   const promptResponses = await processDataInBatches(promptsData, SLIDE_WIDTH, promiseHandler, null);
 
   return splitPromiseSettledResponses(promptResponses);
@@ -637,7 +639,16 @@ const extractTestCasesToCreateOrMatch = (rematches) => {
   );
 };
 
-const checkExistOrCreateTestCases = async ({ requirementData, signalsWithValues, signalNames, existingTestCasesByWords, existingTestCasesLookup, prompt, role }) => {
+const checkExistOrCreateTestCases = async ({
+  requirementData,
+  signalsWithValues,
+  signalNames,
+  existingTestCasesByWords,
+  existingTestCasesLookup,
+  prompt,
+  role,
+  abortController,
+}) => {
   try {
     const testCasesData = await consultAIForTestCasesGeneration({
       requirementData,
@@ -645,6 +656,7 @@ const checkExistOrCreateTestCases = async ({ requirementData, signalsWithValues,
       signalNames,
       prompt,
       role,
+      abortController,
     });
 
     const potentialsWithProposalTestCases = await getRelevantExistingTestCases({
@@ -653,7 +665,8 @@ const checkExistOrCreateTestCases = async ({ requirementData, signalsWithValues,
       existingTestCasesLookup,
       signalNames,
     });
-    const [matchedExistingTestCases, failedMatching] = await getTestCasesMatches(potentialsWithProposalTestCases, requirementData);
+
+    const [matchedExistingTestCases, failedMatching] = await getTestCasesMatches(potentialsWithProposalTestCases, requirementData, abortController);
 
     // TODO: Handle failed matchin here
     const rematches = matchedExistingTestCases.map((match) => {
@@ -672,8 +685,15 @@ const checkExistOrCreateTestCases = async ({ requirementData, signalsWithValues,
   }
 };
 
-exports.useChatCompletionForTestCaseGeneration = async (artifacts, dataForTestCases, prompt, role, progressHandler, sessionId, batchSize = REQ_PER_TIME) => {
-  const abortController = new AbortController();
+exports.useChatCompletionForTestCaseGeneration = async (
+  artifacts,
+  dataForTestCases,
+  prompt,
+  role,
+  progressHandler,
+  sessionId,
+  { batchSize = REQ_PER_TIME, abortController = null }
+) => {
   const xmlParser = new XMLParser({ ignoreAttributes: false });
 
   try {
@@ -682,8 +702,8 @@ exports.useChatCompletionForTestCaseGeneration = async (artifacts, dataForTestCa
     const signalNames = Array.from(Object.keys(signalsWithValues));
     const [existingTestCasesByWords, existingTestCasesLookup] = reduceExistingTestCasesToMapOfWords(existingTestCaseXmls);
 
-    const promiseHandler = async (requirementData) =>
-      checkExistOrCreateTestCases({ requirementData, signalsWithValues, signalNames, existingTestCasesByWords, existingTestCasesLookup, prompt, role });
+    const promiseHandler = async (requirementData, abortController) =>
+      checkExistOrCreateTestCases({ requirementData, signalsWithValues, signalNames, existingTestCasesByWords, existingTestCasesLookup, prompt, role, abortController });
 
     const responses = await processDataInBatches(artifacts, batchSize, promiseHandler, progressHandler, abortController, sessionId);
 

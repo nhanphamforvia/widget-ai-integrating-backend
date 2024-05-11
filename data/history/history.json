@@ -98,6 +98,267 @@
       "duration": 0,
       "status": "pending",
       "tool": "quality"
+    },
+    {
+      "id": "d983e8df-3110-4a00-acdd-0f8ec311597b",
+      "clientId": "e021ee05-564d-4b38-81d5-b7680e2cf814",
+      "createdAt": "2024-05-08T08:49:34.296Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "consistency"
+    },
+    {
+      "id": "8bcf3cfa-c3c8-4cc5-9e2a-fbbc205a43b3",
+      "clientId": "e021ee05-564d-4b38-81d5-b7680e2cf814",
+      "createdAt": "2024-05-08T08:49:36.865Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "toxic"
+    },
+    {
+      "id": "36df97cb-4c60-4a51-81ea-78ff3ad03531",
+      "clientId": "e021ee05-564d-4b38-81d5-b7680e2cf814",
+      "createdAt": "2024-05-08T08:49:38.637Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "cancelled",
+      "tool": "toxic"
+    },
+    {
+      "id": "b6e78a5f-4142-4baf-a5eb-797eb54d2728",
+      "clientId": "e021ee05-564d-4b38-81d5-b7680e2cf814",
+      "createdAt": "2024-05-08T08:49:39.736Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "quality"
+    },
+    {
+      "id": "fc8195dd-90ac-495c-a6de-249340dacebb",
+      "clientId": "e021ee05-564d-4b38-81d5-b7680e2cf814",
+      "createdAt": "2024-05-08T09:23:40.117Z",
+      "finishedAt": "2024-05-08T09:23:46.488Z",
+      "duration": 6371,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "12256c04-319f-43d3-9847-bc774657b766",
+      "clientId": "e021ee05-564d-4b38-81d5-b7680e2cf814",
+      "createdAt": "2024-05-08T09:27:07.102Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "cancelled",
+      "tool": "translate"
+    },
+    {
+      "id": "0e1fb9c0-5d09-40ec-9f52-cff0a196e9d4",
+      "clientId": "e021ee05-564d-4b38-81d5-b7680e2cf814",
+      "createdAt": "2024-05-08T09:27:08.750Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "cancelled",
+      "tool": "consistency"
+    },
+    {
+      "id": "0e172e5b-3d57-4e25-8814-1184ab04eaf0",
+      "clientId": "e021ee05-564d-4b38-81d5-b7680e2cf814",
+      "createdAt": "2024-05-08T09:27:10.568Z",
+      "finishedAt": "2024-05-08T09:29:53.063Z",
+      "duration": 162495,
+      "status": "success",
+      "tool": "toxic"
+    },
+    {
+      "id": "e6245a87-2afb-4944-99b1-31caf6ccb43d",
+      "clientId": "e021ee05-564d-4b38-81d5-b7680e2cf814",
+      "createdAt": "2024-05-08T09:27:11.684Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "cancelled",
+      "tool": "quality"
+    },
+    {
+      "id": "67ca7009-734b-4031-b53d-93dcef219d5b",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T14:06:12.404Z",
+      "finishedAt": "2024-05-11T14:06:39.310Z",
+      "duration": 26906,
+      "status": "success",
+      "tool": "translate"
+    },
+    {
+      "id": "6af80635-c59a-448f-8a24-7c53e486c091",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T14:13:07.986Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "cancelled",
+      "tool": "quality"
+    },
+    {
+      "id": "ab678937-a8ac-4492-862b-ab0c1d53d748",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T14:31:47.040Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "cancelled",
+      "tool": "translate"
+    },
+    {
+      "id": "6e978daf-a18e-4da5-97ec-ddb243aee483",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T14:34:43.916Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "cancelled",
+      "tool": "translate"
+    },
+    {
+      "id": "6d39d1ac-83a0-4040-98ba-aa867dbaa28f",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T14:35:32.074Z",
+      "finishedAt": "2024-05-11T14:39:56.542Z",
+      "duration": 264468,
+      "status": "success",
+      "tool": "translate"
+    },
+    {
+      "id": "4a34d825-a6b9-4c6a-9fa6-305d98af485a",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T14:48:22.091Z",
+      "finishedAt": "2024-05-11T14:48:54.429Z",
+      "duration": 32338,
+      "status": "success",
+      "tool": "translate"
+    },
+    {
+      "id": "1defa6a7-31cb-45db-9e80-2a0247524299",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T14:53:59.946Z",
+      "finishedAt": "2024-05-11T14:54:11.735Z",
+      "duration": 11789,
+      "status": "success",
+      "tool": "translate"
+    },
+    {
+      "id": "a3b28ec1-68a2-4fd8-a945-d3a34dab1fd3",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T14:54:26.519Z",
+      "finishedAt": "2024-05-11T14:57:09.442Z",
+      "duration": 162923,
+      "status": "success",
+      "tool": "translate"
+    },
+    {
+      "id": "c8941bfa-e2ac-411b-acfe-112066926e62",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T15:00:19.432Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "cancelled",
+      "tool": "translate"
+    },
+    {
+      "id": "078abbb2-7e51-4e66-bb5a-052b5cfac16c",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T15:01:03.642Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "cancelled",
+      "tool": "translate"
+    },
+    {
+      "id": "b165a60c-fd57-4e4b-990e-3e6f2891b823",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T15:02:28.542Z",
+      "finishedAt": "2024-05-11T15:02:45.551Z",
+      "duration": 17009,
+      "status": "success",
+      "tool": "translate"
+    },
+    {
+      "id": "12ded62a-b657-40e7-b208-2cc9124941b6",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T15:05:30.999Z",
+      "finishedAt": "2024-05-11T15:05:43.084Z",
+      "duration": 12085,
+      "status": "success",
+      "tool": "translate"
+    },
+    {
+      "id": "4da30721-0292-4901-b8e6-032b5af1b301",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T15:10:29.197Z",
+      "finishedAt": "2024-05-11T15:10:43.513Z",
+      "duration": 14316,
+      "status": "success",
+      "tool": "consistency"
+    },
+    {
+      "id": "aa178bfc-72e5-4e62-a64a-bdb6c12e2940",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T15:11:16.259Z",
+      "finishedAt": "2024-05-11T15:11:25.023Z",
+      "duration": 8764,
+      "status": "success",
+      "tool": "toxic"
+    },
+    {
+      "id": "2dbd129f-f91d-4950-b770-368498f35f96",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T15:24:31.784Z",
+      "finishedAt": "2024-05-11T15:24:41.325Z",
+      "duration": 9541,
+      "status": "success",
+      "tool": "translate"
+    },
+    {
+      "id": "08f6151c-dbc3-4eeb-b284-e7e2b5d0d9f9",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T15:24:52.955Z",
+      "finishedAt": "2024-05-11T15:25:00.263Z",
+      "duration": 7308,
+      "status": "success",
+      "tool": "consistency"
+    },
+    {
+      "id": "dd2f9bd0-3ea4-4469-a1d8-851f580031ab",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T15:27:48.016Z",
+      "finishedAt": "2024-05-11T15:27:59.455Z",
+      "duration": 11439,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "78569b96-1e43-454e-bb94-a651fee40dc2",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T15:29:50.318Z",
+      "finishedAt": "2024-05-11T15:30:02.290Z",
+      "duration": 11972,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "5a6f511a-e1ee-4f79-ad45-1ba26827dda6",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T15:35:04.736Z",
+      "finishedAt": "2024-05-11T15:35:14.238Z",
+      "duration": 9502,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "d1c5f975-79bc-4ba3-8a01-3d35ddb32db4",
+      "clientId": "b934bcbe-804a-40dd-8cbd-e7d93e8a52b4",
+      "createdAt": "2024-05-11T15:37:55.940Z",
+      "finishedAt": "2024-05-11T15:39:51.607Z",
+      "duration": 115667,
+      "status": "success",
+      "tool": "translate"
     }
   ]
 }

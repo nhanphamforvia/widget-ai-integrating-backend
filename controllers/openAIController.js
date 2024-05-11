@@ -15,19 +15,19 @@ const {
   finishRequest,
   deleteQueueItem,
   updateItemProgress,
-  itemInConcurrentToProcessNext,
+  getNextConcurrentRequest,
 } = useQueueFactory();
 const finishedRequests = new Map();
 
 /* Main function to process requests */
 const processNextRequests = async () => {
   while (true) {
-    const request = itemInConcurrentToProcessNext();
+    const request = getNextConcurrentRequest();
     if (request == null || queue.isEmpty()) break;
 
     commenceQueueProcess(request);
 
-    const { sessionId, clientId, data: inputData, tool, prompt, role, requestedAt } = request;
+    const { sessionId, clientId, data: inputData, tool, prompt, role, requestedAt, abortController } = request;
     const { artifacts, dataForTestCases, dngWorkspace } = inputData;
 
     // TODO: Check if tool is consistency, make a branch to handle it separately.
@@ -40,15 +40,15 @@ const processNextRequests = async () => {
     let results;
     switch (tool) {
       case "consistency":
-        results = await useChatCompletionForConsistency(artifacts, prompt, role, progressHandler, sessionId);
+        results = await useChatCompletionForConsistency(artifacts, prompt, role, progressHandler, sessionId, { abortController });
         break;
       case "translate":
       case "toxic":
       case "quality":
-        results = await useChatCompletionForIndividualItem(artifacts, prompt, role, progressHandler, sessionId);
+        results = await useChatCompletionForIndividualItem(artifacts, prompt, role, progressHandler, sessionId, { abortController });
         break;
       case "test-cases-generation":
-        results = await useChatCompletionForTestCaseGeneration(artifacts, dataForTestCases, prompt, role, progressHandler, sessionId);
+        results = await useChatCompletionForTestCaseGeneration(artifacts, dataForTestCases, prompt, role, progressHandler, sessionId, { abortController });
         break;
       default:
         throw new AppError("Invalid tool specified", 400);

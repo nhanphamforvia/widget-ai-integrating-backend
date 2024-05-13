@@ -410,6 +410,8 @@ const consultAIForTestCasesGeneration = async ({ requirementData, signalsWithVal
     signalValuesUndefined: "SIGNALS_POSSIBLE_VALUES_NOT_FOUND",
   };
 
+  console.log(abortController);
+
   const signalsUsed = filterSignalsUsedInRequirement(requirementData.primaryText, signalNames, signalsWithValues);
 
   const conditionPrompt = `\n- Requirement content: ${requirementData.primaryText}
@@ -599,7 +601,7 @@ const getTestCasesMatches = async (potentialsWithProposalTestCases, requirementD
   });
 
   const promiseHandler = async (dataStr, abortController) => consultAISelectExistingTestCase(dataStr, requirementData, abortController);
-  const promptResponses = await processDataInBatches(promptsData, SLIDE_WIDTH, promiseHandler, null);
+  const promptResponses = await processDataInBatches(promptsData, SLIDE_WIDTH, promiseHandler, null, abortController);
 
   return splitPromiseSettledResponses(promptResponses);
 };

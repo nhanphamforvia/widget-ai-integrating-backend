@@ -182,7 +182,7 @@ exports.createSession = async ({ clientId, origin, status = STATUS.PENDING, tool
     origin,
   };
 
-  if (status === STATUS.DENIED || status === STATUS.ERROR || status === STATUS.SUCCESS) {
+  if (status === STATUS.DENIED || status === STATUS.ERROR || status === STATUS.SUCCESS || status === STATUS.CANCELLED) {
     finishSession(session);
   }
 
@@ -203,7 +203,7 @@ exports.updateSession = async (sessionId, { status = null }) => {
     return session.id === sessionId;
   });
 
-  if (status === STATUS.DENIED || status === STATUS.ERROR || status === STATUS.SUCCESS) {
+  if (status === STATUS.DENIED || status === STATUS.ERROR || status === STATUS.SUCCESS || status === STATUS.CANCELLED) {
     finishSession(session);
   }
 

@@ -81,13 +81,11 @@ exports.useQueueFactory = () => {
 
     const [item] = queue.removeItem(index);
 
-    if (item != null && item.abortController) {
-      item.abortController.abort();
-    }
-
     if (queue.isEmpty()) {
       state = MACHINE_STATES.IDLE;
     }
+
+    return item;
   };
 
   const getCompressedQueue = ({ tool = null, clientId = null, forProgress = false }) => {

@@ -59,7 +59,7 @@ const processNextRequests = async () => {
     }
 
     const { data, errors } = results;
-    const session = getSession(sessionId);
+    const session = await getSession(sessionId);
 
     if (session.status === STATUS.CANCELLED) {
       resetServiceState(request);
@@ -172,7 +172,12 @@ exports.deleteQueueItem = catchAsync(async (req, res, next) => {
   const { clientId } = req.client;
   const { sessionId } = req.body;
 
-  deleteQueueItem(sessionId, clientId);
+  const deletedItem = deleteQueueItem(sessionId, clientId);
+
+  if (deletedItem != null && deletedItem.abortController) {
+    deletedItem.abortController.abort();
+  }
+
   await updateSession(sessionId, { status: STATUS.CANCELLED });
 
   processNextRequests();

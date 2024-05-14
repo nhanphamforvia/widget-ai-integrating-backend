@@ -12,6 +12,11 @@ const OPEN_AI_MAX_TOKENS = 8000;
 const EXISTING_AI_TESTCASE_ROLE = "You are a tester, checking for potential test case that match the proposal test content to validate requirement";
 const EXISTING_AI_TESTCASE_PROMPT = `Choose which ID of one test case from Potential Test Cases that share the most similar purpose and meaning of the description of the Proposal Content\n<DATA_STRING>. \nRequirement to validate: <REQ_TEXT>.\ If match found, answer in the exact format: {#}: {ID}, in which # is the number of the Proposal Content in the prompt, ID is the ID of the potential test case. If no match found, answer in the exact format {# of Proposal Content}: None, in which # is the number of the Proposal Content in the prompt`;
 
+const TESTCASE_GEN_STRATEGIES = {
+  equivalenceClassPartiion: "equivalence-class-partitioning",
+  boundaryValueAnalysis: "boundary-value-analysis",
+};
+
 const chatCompletion = async (messages, temperature = TEMP, { signal = null }) => {
   try {
     if (signal != null && signal.aborted) {
@@ -306,10 +311,33 @@ exports.useChatCompletionForIndividualItem = async (artifacts, prompt, role, pro
 /* START: Test case generation */
 const filterSignalsUsedInRequirement = (requirementText, signalNames, signalsWithValues) => {
   return signalNames.reduce((signalsUsed, signalName) => {
-    if (requirementText.includes(signalName)) {
+    const startIndex = requirementText.indexOf(signalName);
+    const quoteIndex = requirementText.indexOf('"', startIndex);
+    const spaceIndex = requirementText.indexOf(" ", startIndex);
+
+    let endIndex = -1;
+    if (quoteIndex < 0 && spaceIndex > 0) {
+      endIndex = spaceIndex;
+    } else if (spaceIndex < 0 && quoteIndex > 0) {
+      endIndex = quoteIndex;
+    } else if (spaceIndex > 0 && quoteIndex > 0) {
+      endIndex = Math.min(spaceIndex, quoteIndex);
+    }
+
+    const signalNameInReq = requirementText.slice(startIndex, endIndex);
+
+    if (signalsWithValues[signalNameInReq]) {
+      const type =
+        signalsWithValues[signalNameInReq].enumerationValues == null || signalsWithValues[signalNameInReq].enumerationValues == "NA"
+          ? TESTCASE_GEN_STRATEGIES.boundaryValueAnalysis
+          : TESTCASE_GEN_STRATEGIES.equivalenceClassPartiion;
+
       return {
         ...signalsUsed,
-        [signalName]: signalsWithValues[signalName],
+        [signalName]: {
+          ...signalsWithValues[signalNameInReq],
+          type,
+        },
       };
     }
 
@@ -361,7 +389,7 @@ const parseSingleTestCase = (testCaseOptionsStr) => {
   // Extract relevant information from the input string
   const titleMatch = testCaseOptionsStr.match(/Title: (.+)/);
   const descriptionMatch = testCaseOptionsStr.match(/Description: (.+)/);
-  const outputDefinedMatch = testCaseOptionsStr.match(/OutputDefined:\s*(true|false)\b/);
+  const outputDefinedMatch = testCaseOptionsStr.match(/OutputDefined:\s*(true|false|True|False|TRUE|FALSE)\b/);
 
   // Create an object with the extracted properties
   const parsedData = {
@@ -370,7 +398,7 @@ const parseSingleTestCase = (testCaseOptionsStr) => {
   };
 
   if (outputDefinedMatch) {
-    parsedData.outputDefined = outputDefinedMatch[1].trim() === "true";
+    parsedData.outputDefined = outputDefinedMatch[1].trim().toLowerCase() === "true";
   }
 
   return parsedData;
@@ -410,13 +438,10 @@ const consultAIForTestCasesGeneration = async ({ requirementData, signalsWithVal
     signalValuesUndefined: "SIGNALS_POSSIBLE_VALUES_NOT_FOUND",
   };
 
-  console.log(abortController);
-
   const signalsUsed = filterSignalsUsedInRequirement(requirementData.primaryText, signalNames, signalsWithValues);
 
   const conditionPrompt = `\n- Requirement content: ${requirementData.primaryText}
-  - Requirement type: ${requirementData.type}
-  - Signals' possible values: ${JSON.stringify(signalsUsed)}`;
+  - SIGNALS_POSSIBLE_VALUES: ${JSON.stringify(signalsUsed)}`;
 
   const messages = [
     {
@@ -442,11 +467,6 @@ const consultAIForTestCasesGeneration = async ({ requirementData, signalsWithVal
     }
 
     const testCaseOptionsStr = resData.data?.[0];
-
-    // console.log("-------------------------------");
-    // console.log(requirementData.id);
-    // console.log(testCaseOptionsStr);
-    // console.log("-------------------------------");
 
     const consultError = Object.values(CONSULT_ERRORS).find((value) => {
       return testCaseOptionsStr.includes(value);

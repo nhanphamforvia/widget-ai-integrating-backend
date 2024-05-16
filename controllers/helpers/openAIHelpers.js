@@ -312,16 +312,30 @@ exports.useChatCompletionForIndividualItem = async (artifacts, prompt, role, pro
 const filterSignalsUsedInRequirement = (requirementText, signalNames, signalsWithValues) => {
   return signalNames.reduce((signalsUsed, signalName) => {
     const startIndex = requirementText.indexOf(signalName);
-    const quoteIndex = requirementText.indexOf('"', startIndex);
-    const spaceIndex = requirementText.indexOf(" ", startIndex);
+    // const quoteIndex = requirementText.indexOf('"', startIndex);
+    // const spaceIndex = requirementText.indexOf(" ", startIndex);
 
-    let endIndex = -1;
-    if (quoteIndex < 0 && spaceIndex > 0) {
-      endIndex = spaceIndex;
-    } else if (spaceIndex < 0 && quoteIndex > 0) {
-      endIndex = quoteIndex;
-    } else if (spaceIndex > 0 && quoteIndex > 0) {
-      endIndex = Math.min(spaceIndex, quoteIndex);
+    // let endIndex = -1;
+    // if (quoteIndex < 0 && spaceIndex > 0) {
+    //   endIndex = spaceIndex;
+    // } else if (spaceIndex < 0 && quoteIndex > 0) {
+    //   endIndex = quoteIndex;
+    // } else if (spaceIndex > 0 && quoteIndex > 0) {
+    //   endIndex = Math.min(spaceIndex, quoteIndex);
+    // }
+
+    const subString = requirementText.slice(startIndex);
+    let i = 0;
+    let endIndex = 0;
+
+    while (!endIndex) {
+      const char = subString[i];
+      if (char === "_" || (char >= "a" && char <= "z") || (char >= "A" && char <= "Z")) {
+        i++;
+        continue;
+      }
+
+      endIndex = startIndex + i;
     }
 
     const signalNameInReq = requirementText.slice(startIndex, endIndex);
@@ -355,6 +369,7 @@ const reduceExistingTestCasesToMapOfWords = (existingTestCases) => {
     const description = tcXml["rdf:Description"]["dcterms:description"]?.["#text"];
     const rdfType = tcXml["rdf:Description"]["rdf:type"]["@_rdf:resource"];
     const rdfAbout = tcXml["rdf:Description"]["@_rdf:about"];
+    const testLevel = tcXml["rdf:Description"]["custom:test_level"];
 
     if (!rdfType.endsWith("qm#TestCase")) return;
 
@@ -370,6 +385,7 @@ const reduceExistingTestCasesToMapOfWords = (existingTestCases) => {
       description,
       rdfType,
       rdfAbout,
+      testLevel,
     });
   });
 
@@ -439,9 +455,7 @@ const consultAIForTestCasesGeneration = async ({ requirementData, signalsWithVal
   };
 
   const signalsUsed = filterSignalsUsedInRequirement(requirementData.primaryText, signalNames, signalsWithValues);
-
-  const conditionPrompt = `\n- Requirement content: ${requirementData.primaryText}
-  - SIGNALS_POSSIBLE_VALUES: ${JSON.stringify(signalsUsed)}`;
+  const conditionPrompt = `\n- Requirement content: ${requirementData.primaryText}\n- SIGNALS_POSSIBLE_VALUES: ${JSON.stringify(signalsUsed, null, 2)}`;
 
   const messages = [
     {
@@ -468,6 +482,15 @@ const consultAIForTestCasesGeneration = async ({ requirementData, signalsWithVal
 
     const testCaseOptionsStr = resData.data?.[0];
 
+    // Test
+    // if (requirementData.id == 403593) {
+    console.log("------------------");
+    console.log(requirementData.id);
+    console.log(testCaseOptionsStr);
+    console.log(signalsUsed);
+    // }
+    // Test
+
     const consultError = Object.values(CONSULT_ERRORS).find((value) => {
       return testCaseOptionsStr.includes(value);
     });
@@ -483,11 +506,12 @@ const consultAIForTestCasesGeneration = async ({ requirementData, signalsWithVal
 
     return selectOutputDefinedTestCasesData([parseSingleTestCase(testCaseOptionsStr)]);
   } catch (err) {
+    console.log("Error: ", err);
     throw err;
   }
 };
 
-const getRelevantExistingTestCases = async ({ testCasesData, existingTestCasesByWords, existingTestCasesLookup, signalNames }) => {
+const getRelevantExistingTestCases = async ({ testCasesData, existingTestCasesByWords, existingTestCasesLookup, signalNames, reqTestCaseLevel }) => {
   try {
     testCasesData.forEach((tcData, i) => {
       tcData.index = i;
@@ -514,8 +538,10 @@ const getRelevantExistingTestCases = async ({ testCasesData, existingTestCasesBy
       });
     };
 
-    const createWorker = (concurTCs, existingTestCasesByWords, similarityThreshold, signalNames) => {
-      const worker = new Worker("./controllers/helpers/worker.js", { workerData: { concurTCs, existingTestCasesByWords, similarityThreshold, signalNames } });
+    const createWorker = (concurTCs, reqTestCaseLevel, existingTestCasesByWords, existingTestCasesLookup, similarityThreshold, signalNames) => {
+      const worker = new Worker("./controllers/helpers/worker.js", {
+        workerData: { concurTCs, reqTestCaseLevel, existingTestCasesByWords, existingTestCasesLookup, similarityThreshold, signalNames },
+      });
       worker.on("error", (err) => {
         throw err;
       });
@@ -529,7 +555,7 @@ const getRelevantExistingTestCases = async ({ testCasesData, existingTestCasesBy
       }
 
       if (workers.length < WORKERS_MAX && (concurTCs.length >= CONCUR_MAX || i === tcCount - 1)) {
-        const worker = createWorker(concurTCs, existingTestCasesByWords, similarityThreshold, signalNames);
+        const worker = createWorker(concurTCs, reqTestCaseLevel, existingTestCasesByWords, existingTestCasesLookup, similarityThreshold, signalNames);
         workers.push(worker);
         concurTCs = [];
       }
@@ -665,6 +691,7 @@ const checkExistOrCreateTestCases = async ({
   requirementData,
   signalsWithValues,
   signalNames,
+  testLevelsData,
   existingTestCasesByWords,
   existingTestCasesLookup,
   prompt,
@@ -681,11 +708,15 @@ const checkExistOrCreateTestCases = async ({
       abortController,
     });
 
+    const { H_TestLevelByArtURILookup } = testLevelsData;
+    const reqTestCaseLevel = H_TestLevelByArtURILookup[requirementData.typeRdfUri];
+
     const potentialsWithProposalTestCases = await getRelevantExistingTestCases({
       testCasesData,
       existingTestCasesByWords,
       existingTestCasesLookup,
       signalNames,
+      reqTestCaseLevel,
     });
 
     const [matchedExistingTestCases, failedMatching] = await getTestCasesMatches(potentialsWithProposalTestCases, requirementData, abortController);
@@ -719,13 +750,25 @@ exports.useChatCompletionForTestCaseGeneration = async (
   const xmlParser = new XMLParser({ ignoreAttributes: false });
 
   try {
-    const { existingTestCases, signalsWithValues, commonEtmTCEnvVariables } = dataForTestCases;
+    const { existingTestCases, signalsWithValues, commonEtmTCEnvVariables, testLevelsData } = dataForTestCases;
     const existingTestCaseXmls = existingTestCases.map((tcStr) => xmlParser.parse(tcStr));
     const signalNames = Array.from(Object.keys(signalsWithValues));
     const [existingTestCasesByWords, existingTestCasesLookup] = reduceExistingTestCasesToMapOfWords(existingTestCaseXmls);
 
+    // console.log(existingTestCasesLookup);
+
     const promiseHandler = async (requirementData, abortController) =>
-      checkExistOrCreateTestCases({ requirementData, signalsWithValues, signalNames, existingTestCasesByWords, existingTestCasesLookup, prompt, role, abortController });
+      checkExistOrCreateTestCases({
+        requirementData,
+        signalsWithValues,
+        signalNames,
+        testLevelsData,
+        existingTestCasesByWords,
+        existingTestCasesLookup,
+        prompt,
+        role,
+        abortController,
+      });
 
     const responses = await processDataInBatches(artifacts, batchSize, promiseHandler, progressHandler, abortController, sessionId);
 

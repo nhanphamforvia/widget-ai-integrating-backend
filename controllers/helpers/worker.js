@@ -1,6 +1,6 @@
 const { parentPort, workerData } = require("worker_threads");
 
-const computeSimilarities = ({ concurTCs, existingTestCasesByWords, similarityThreshold, signalNames }) => {
+const computeSimilarities = ({ concurTCs, reqTestCaseLevel, existingTestCasesByWords, existingTestCasesLookup, similarityThreshold, signalNames }) => {
   const groups = new Map();
   const visited = new Map();
 
@@ -18,6 +18,8 @@ const computeSimilarities = ({ concurTCs, existingTestCasesByWords, similarityTh
     for (let j = 0; j < existingLength; j++) {
       const [id, value] = existingTestCaseEntries[j];
       if (visited.has(id)) continue;
+      if (!existingTestCasesLookup.has(id)) continue;
+      if (existingTestCasesLookup.get(id).testLevel["@_externalURI"] !== reqTestCaseLevel) continue;
 
       const { title: existingTitle, description: existingDescriptionWords } = value;
 
@@ -47,7 +49,7 @@ const computeSimilarities = ({ concurTCs, existingTestCasesByWords, similarityTh
 
       const group = groups.get(index) || [];
       visited.set(id, true);
-      group.push({ id, similarity, numberSimilarity });
+      group.push({ id, similarity, numberSimilarity, signalNameSimilarity });
       group.sort((a, b) => {
         if (b.similarity === a.similarity && a.similarity < 1) {
           if (a.signalNameSimilarity > 0 || b.signalNameSimilarity > 0) {

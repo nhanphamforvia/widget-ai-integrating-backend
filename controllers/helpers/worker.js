@@ -3,7 +3,6 @@ const { parentPort, workerData } = require("worker_threads");
 const computeSimilarities = ({ concurTCs, reqTestCaseLevel, existingTestCasesByWords, existingTestCasesLookup, similarityThreshold, signalNames }) => {
   try {
     const groups = new Map();
-    const visited = new Map();
 
     const POTENTIAL_MAX = 7;
 
@@ -12,6 +11,7 @@ const computeSimilarities = ({ concurTCs, reqTestCaseLevel, existingTestCasesByW
     const existingLength = existingTestCaseEntries.length;
 
     for (let i = 0; i < concursLength; i++) {
+      const visited = new Map();
       const { index, title: requiredTitle, description: requiredDescription } = concurTCs[i];
 
       const currentDescriptionWords = new Set(requiredDescription?.split(" ") || "");
@@ -55,11 +55,9 @@ const computeSimilarities = ({ concurTCs, reqTestCaseLevel, existingTestCasesByW
         group.push({ id, similarity, numberSimilarity, signalNameSimilarity });
         group.sort((a, b) => {
           if (b.similarity === a.similarity) {
-            if (a.signalNameSimilarity > 0 || b.signalNameSimilarity > 0) {
-              return b.signalNameSimilarity - a.signalNameSimilarity;
+            if (a.signalNameSimilarity === b.signalNameSimilarity) {
+              return b.numberSimilarity - a.numberSimilarity;
             }
-
-            return b.numberSimilarity - a.numberSimilarity;
           }
 
           return b.similarity - a.similarity;

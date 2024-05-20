@@ -328,7 +328,7 @@ const filterSignalsUsedInRequirement = (requirementText, signalNames, signalsWit
     let i = 0;
     let endIndex = 0;
 
-    while (!endIndex) {
+    while (!endIndex && i <= subString.length - 1) {
       const char = subString[i];
       if (char === "_" || (char >= "a" && char <= "z") || (char >= "A" && char <= "Z")) {
         i++;
@@ -336,6 +336,7 @@ const filterSignalsUsedInRequirement = (requirementText, signalNames, signalsWit
       }
 
       endIndex = startIndex + i;
+      break;
     }
 
     const signalNameInReq = requirementText.slice(startIndex, endIndex);
@@ -375,7 +376,7 @@ const reduceExistingTestCasesToMapOfWords = (existingTestCases) => {
 
     existingTestCasesByWords.set(id, {
       title: new Set(title?.split(" ") || ""),
-      description: new Set(description?.split(" ") || ""),
+      description: new Set(description?.split(/[. "'\s]+/) || ""),
     });
 
     existingTestCasesLookup.set(id, {
@@ -390,15 +391,6 @@ const reduceExistingTestCasesToMapOfWords = (existingTestCases) => {
   });
 
   return [existingTestCasesByWords, existingTestCasesLookup];
-};
-
-const parseLackConstraintsFlag = (testCaseOptionsStr) => {
-  const regex = /lackConstraints[:=]\s*(\w+)/;
-  const match = testCaseOptionsStr.match(regex);
-
-  const lackConstraintsValue = match ? match[1] : null;
-
-  return lackConstraintsValue?.trim() === "true";
 };
 
 const parseSingleTestCase = (testCaseOptionsStr) => {
@@ -449,7 +441,7 @@ const selectOutputDefinedTestCasesData = (testCasesData) => {
 };
 
 const consultAIForTestCasesGeneration = async ({ requirementData, signalsWithValues, signalNames, prompt, role, abortController }) => {
-  const CONSULT_ERRORS = {
+  const GENERATE_ERRORS = {
     lackConstraints: "LACK_CONSTRAINTS",
     signalValuesUndefined: "SIGNALS_POSSIBLE_VALUES_NOT_FOUND",
   };
@@ -482,20 +474,11 @@ const consultAIForTestCasesGeneration = async ({ requirementData, signalsWithVal
 
     const testCaseOptionsStr = resData.data?.[0];
 
-    // Test
-    // if (requirementData.id == 403593) {
-    console.log("------------------");
-    console.log(requirementData.id);
-    console.log(testCaseOptionsStr);
-    console.log(signalsUsed);
-    // }
-    // Test
-
-    const consultError = Object.values(CONSULT_ERRORS).find((value) => {
+    const consultError = Object.values(GENERATE_ERRORS).find((value) => {
       return testCaseOptionsStr.includes(value);
     });
 
-    if (consultError || parseLackConstraintsFlag(testCaseOptionsStr)) {
+    if (consultError) {
       const msg = `Requirement <strong>${requirementData.id}</strong> is <strong>not testable</strong> due to ${consultError?.split("_")?.join(" ")}`;
       throw new Error(msg);
     }
@@ -738,6 +721,15 @@ const checkExistOrCreateTestCases = async ({
   }
 };
 
+// const parseLackConstraintsFlag = (testCaseOptionsStr) => {
+//   const regex = /lackConstraints[:=]\s*(\w+)/;
+//   const match = testCaseOptionsStr.match(regex);
+
+//   const lackConstraintsValue = match ? match[1] : null;
+
+//   return lackConstraintsValue?.trim() === "true";
+// };
+
 exports.useChatCompletionForTestCaseGeneration = async (
   artifacts,
   dataForTestCases,
@@ -754,8 +746,6 @@ exports.useChatCompletionForTestCaseGeneration = async (
     const existingTestCaseXmls = existingTestCases.map((tcStr) => xmlParser.parse(tcStr));
     const signalNames = Array.from(Object.keys(signalsWithValues));
     const [existingTestCasesByWords, existingTestCasesLookup] = reduceExistingTestCasesToMapOfWords(existingTestCaseXmls);
-
-    // console.log(existingTestCasesLookup);
 
     const promiseHandler = async (requirementData, abortController) =>
       checkExistOrCreateTestCases({

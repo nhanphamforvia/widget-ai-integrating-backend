@@ -19,6 +19,7 @@ const computeSimilarities = ({ concurTCs, reqTestCaseLevel, existingTestCasesByW
 
       for (let j = 0; j < existingLength; j++) {
         const [id, value] = existingTestCaseEntries[j];
+
         if (visited.has(id)) continue;
 
         if (!existingTestCasesLookup.has(id)) continue;
@@ -38,14 +39,14 @@ const computeSimilarities = ({ concurTCs, reqTestCaseLevel, existingTestCasesByW
 
         if (currentDescriptionNumbers.length > 0 && numberMatches.length === 0 && signalNames.length > 0 && signalNameMatches.length === 0) continue;
 
-        if (signalNameMatches.length > 0) {
-          similarity = 1;
-          signalNameSimilarity = signalNameMatches.length;
-        }
-
         if (numberMatches.length > 0) {
           similarity = 1;
           numberSimilarity = numberMatches.length;
+        }
+
+        if (signalNameMatches.length > 0) {
+          similarity = 1;
+          signalNameSimilarity = signalNameMatches.length;
         }
 
         if (similarity < similarityThreshold) continue;
@@ -58,6 +59,8 @@ const computeSimilarities = ({ concurTCs, reqTestCaseLevel, existingTestCasesByW
             if (a.signalNameSimilarity === b.signalNameSimilarity) {
               return b.numberSimilarity - a.numberSimilarity;
             }
+
+            return b.signalNameSimilarity - a.signalNameSimilarity;
           }
 
           return b.similarity - a.similarity;

@@ -10,7 +10,7 @@ const REQ_PER_TIME = 30;
 const OPEN_AI_MAX_TOKENS = 8000;
 
 const EXISTING_AI_TESTCASE_ROLE = "You are a tester, checking for potential test case that match the proposal test content to validate requirement";
-const EXISTING_AI_TESTCASE_PROMPT = `Choose which ID of one test case from Potential Test Cases that share the most similar purpose and meaning of the description of the Proposal Content\n<DATA_STRING>. \nRequirement to validate: <REQ_TEXT>.\ If match found, answer in the exact format: {#}: {ID}, in which # is the number of the Proposal Content in the prompt, ID is the ID of the potential test case. If no match found, answer in the exact format {# of Proposal Content}: None, in which # is the number of the Proposal Content in the prompt`;
+const EXISTING_AI_TESTCASE_PROMPT = `Choose which ID of the Potential Test Cases which has description with the most similar description of the Proposal Content\n<DATA_STRING>. \nRequirement to validate: <REQ_TEXT>.\ If match found, answer in the exact format: {#}: {ID}, in which # is the number of the Proposal Content in the prompt, ID is the ID of the potential test case. If no match found, answer in the exact format {# of Proposal Content}: None, in which # is the number of the Proposal Content in the prompt`;
 
 const TESTCASE_GEN_STRATEGIES = {
   equivalenceClassPartiion: "equivalence-class-partitioning",
@@ -694,13 +694,22 @@ const checkExistOrCreateTestCases = async ({
     const { H_TestLevelByArtURILookup } = testLevelsData;
     const reqTestCaseLevel = H_TestLevelByArtURILookup[requirementData.typeRdfUri];
 
+    const signalsUsed = filterSignalsUsedInRequirement(requirementData.primaryText, signalNames, signalsWithValues);
+    console.log(Object.keys(signalsUsed));
+
     const potentialsWithProposalTestCases = await getRelevantExistingTestCases({
       testCasesData,
       existingTestCasesByWords,
       existingTestCasesLookup,
-      signalNames,
+      signalNames: Object.keys(signalsUsed),
       reqTestCaseLevel,
     });
+
+    //Test;
+    if (requirementData.id == 401738) {
+      potentialsWithProposalTestCases.forEach((pWithP) => console.log(pWithP));
+    }
+    //Test;
 
     const [matchedExistingTestCases, failedMatching] = await getTestCasesMatches(potentialsWithProposalTestCases, requirementData, abortController);
 

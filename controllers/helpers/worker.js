@@ -32,7 +32,7 @@ const computeSimilarities = ({ concurTCs, reqTestCaseLevel, existingTestCasesByW
         const unionSize = currentDescriptionWords.size + existingDescriptionWords.size - intersectionSize;
         let similarity = intersectionSize / unionSize;
         let numberSimilarity = 0;
-        let signalUsedNamesimilarity = 0;
+        let signalUsedNameSimilarity = 0;
 
         const numberMatches = currentDescriptionNumbers.filter((num) => existingDescriptionWords.has(num.toString()));
         const signalNameMatches = signalUsedNames.filter((signalName) => existingDescriptionWords.has(signalName));
@@ -46,21 +46,21 @@ const computeSimilarities = ({ concurTCs, reqTestCaseLevel, existingTestCasesByW
 
         if (signalNameMatches.length > 0) {
           similarity = 1;
-          signalUsedNamesimilarity = signalNameMatches.length;
+          signalUsedNameSimilarity = signalNameMatches.length;
         }
 
         if (similarity < similarityThreshold) continue;
 
         const group = groups.get(index) || [];
         visited.set(id, true);
-        group.push({ id, similarity, numberSimilarity, signalUsedNamesimilarity });
+        group.push({ id, similarity, numberSimilarity, signalUsedNameSimilarity });
         group.sort((a, b) => {
           if (b.similarity === a.similarity) {
-            if (a.signalUsedNamesimilarity === b.signalUsedNamesimilarity) {
+            if (a.signalUsedNameSimilarity === b.signalUsedNamesimilarity) {
               return b.numberSimilarity - a.numberSimilarity;
             }
 
-            return b.signalUsedNamesimilarity - a.signalUsedNamesimilarity;
+            return b.signalUsedNameSimilarity - a.signalUsedNamesimilarity;
           }
 
           return b.similarity - a.similarity;

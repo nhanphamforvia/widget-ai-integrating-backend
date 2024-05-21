@@ -53,10 +53,17 @@ const computeSimilarities = ({ concurTCs, reqTestCaseLevel, existingTestCasesByW
 
         const group = groups.get(index) || [];
         visited.set(id, true);
-        group.push({ id, similarity, numberSimilarity, signalUsedNameSimilarity });
+
+        group.push({
+          id,
+          similarity,
+          numberSimilarity,
+          signalUsedNameSimilarity,
+        });
+
         group.sort((a, b) => {
-          if (b.similarity === a.similarity) {
-            if (a.signalUsedNameSimilarity === b.signalUsedNamesimilarity) {
+          if (b.similarity == a.similarity) {
+            if (b.signalUsedNameSimilarity == a.signalUsedNameSimilarity) {
               return b.numberSimilarity - a.numberSimilarity;
             }
 

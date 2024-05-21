@@ -440,13 +440,12 @@ const selectOutputDefinedTestCasesData = (testCasesData) => {
   }, []);
 };
 
-const consultAIForTestCasesGeneration = async ({ requirementData, signalsWithValues, signalNames, prompt, role, abortController }) => {
+const consultAIForTestCasesGeneration = async ({ requirementData, signalsUsed, prompt, role, abortController }) => {
   const GENERATE_ERRORS = {
     lackConstraints: "LACK_CONSTRAINTS",
     signalValuesUndefined: "SIGNALS_POSSIBLE_VALUES_NOT_FOUND",
   };
 
-  const signalsUsed = filterSignalsUsedInRequirement(requirementData.primaryText, signalNames, signalsWithValues);
   const conditionPrompt = `\n- Requirement content: ${requirementData.primaryText}\n- SIGNALS_POSSIBLE_VALUES: ${JSON.stringify(signalsUsed, null, 2)}`;
 
   const messages = [
@@ -494,7 +493,7 @@ const consultAIForTestCasesGeneration = async ({ requirementData, signalsWithVal
   }
 };
 
-const getRelevantExistingTestCases = async ({ testCasesData, existingTestCasesByWords, existingTestCasesLookup, signalNames, reqTestCaseLevel }) => {
+const getRelevantExistingTestCases = async ({ testCasesData, existingTestCasesByWords, existingTestCasesLookup, signalUsedNames, reqTestCaseLevel }) => {
   try {
     testCasesData.forEach((tcData, i) => {
       tcData.index = i;
@@ -521,9 +520,9 @@ const getRelevantExistingTestCases = async ({ testCasesData, existingTestCasesBy
       });
     };
 
-    const createWorker = (concurTCs, reqTestCaseLevel, existingTestCasesByWords, existingTestCasesLookup, similarityThreshold, signalNames) => {
+    const createWorker = (concurTCs, reqTestCaseLevel, existingTestCasesByWords, existingTestCasesLookup, similarityThreshold, signalUsedNames) => {
       const worker = new Worker("./controllers/helpers/worker.js", {
-        workerData: { concurTCs, reqTestCaseLevel, existingTestCasesByWords, existingTestCasesLookup, similarityThreshold, signalNames },
+        workerData: { concurTCs, reqTestCaseLevel, existingTestCasesByWords, existingTestCasesLookup, similarityThreshold, signalUsedNames },
       });
       worker.on("error", (err) => {
         throw err;
@@ -538,7 +537,7 @@ const getRelevantExistingTestCases = async ({ testCasesData, existingTestCasesBy
       }
 
       if (workers.length < WORKERS_MAX && (concurTCs.length >= CONCUR_MAX || i === tcCount - 1)) {
-        const worker = createWorker(concurTCs, reqTestCaseLevel, existingTestCasesByWords, existingTestCasesLookup, similarityThreshold, signalNames);
+        const worker = createWorker(concurTCs, reqTestCaseLevel, existingTestCasesByWords, existingTestCasesLookup, similarityThreshold, signalUsedNames);
         workers.push(worker);
         concurTCs = [];
       }
@@ -682,10 +681,11 @@ const checkExistOrCreateTestCases = async ({
   abortController,
 }) => {
   try {
+    const signalsUsed = filterSignalsUsedInRequirement(requirementData.primaryText, signalNames, signalsWithValues);
+
     const testCasesData = await consultAIForTestCasesGeneration({
       requirementData,
-      signalsWithValues,
-      signalNames,
+      signalsUsed,
       prompt,
       role,
       abortController,
@@ -694,22 +694,13 @@ const checkExistOrCreateTestCases = async ({
     const { H_TestLevelByArtURILookup } = testLevelsData;
     const reqTestCaseLevel = H_TestLevelByArtURILookup[requirementData.typeRdfUri];
 
-    const signalsUsed = filterSignalsUsedInRequirement(requirementData.primaryText, signalNames, signalsWithValues);
-    console.log(Object.keys(signalsUsed));
-
     const potentialsWithProposalTestCases = await getRelevantExistingTestCases({
       testCasesData,
       existingTestCasesByWords,
       existingTestCasesLookup,
-      signalNames: Object.keys(signalsUsed),
+      signalUsedNames: Object.keys(signalsUsed),
       reqTestCaseLevel,
     });
-
-    //Test;
-    if (requirementData.id == 401738) {
-      potentialsWithProposalTestCases.forEach((pWithP) => console.log(pWithP));
-    }
-    //Test;
 
     const [matchedExistingTestCases, failedMatching] = await getTestCasesMatches(potentialsWithProposalTestCases, requirementData, abortController);
 

@@ -5066,6 +5066,159 @@
       "duration": 4024,
       "status": "success",
       "tool": "test-cases-generation"
+    },
+    {
+      "id": "2ff72d1f-eb95-4e2a-89a8-0ee5538f5b17",
+      "clientId": "1f4c9ed5-62fc-4642-baf0-20fd540d4ca0",
+      "createdAt": "2024-05-21T02:37:04.974Z",
+      "finishedAt": "2024-05-21T02:37:10.749Z",
+      "duration": 5775,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "25b0c8f9-861e-4af8-bf66-a8f2a1519b9b",
+      "clientId": "1f4c9ed5-62fc-4642-baf0-20fd540d4ca0",
+      "createdAt": "2024-05-21T02:40:24.412Z",
+      "finishedAt": "2024-05-21T02:40:28.838Z",
+      "duration": 4426,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "11dc54cd-c861-4453-848f-e7c7d4d23895",
+      "clientId": "1f4c9ed5-62fc-4642-baf0-20fd540d4ca0",
+      "createdAt": "2024-05-21T02:40:48.981Z",
+      "finishedAt": "2024-05-21T02:40:52.375Z",
+      "duration": 3394,
+      "status": "success",
+      "tool": "consistency"
+    },
+    {
+      "id": "6a9733af-0b48-416d-b668-a6b0fbf865a2",
+      "clientId": "1f4c9ed5-62fc-4642-baf0-20fd540d4ca0",
+      "createdAt": "2024-05-21T04:21:58.477Z",
+      "finishedAt": "2024-05-21T04:22:02.855Z",
+      "duration": 4378,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "cf0f5c4c-eb9b-43a6-90db-51d639185700",
+      "clientId": "1f4c9ed5-62fc-4642-baf0-20fd540d4ca0",
+      "createdAt": "2024-05-21T04:22:46.839Z",
+      "finishedAt": "2024-05-21T04:22:49.466Z",
+      "duration": 2627,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "1a42853d-03cd-4631-8e43-3a2cf9a0930e",
+      "clientId": "1f4c9ed5-62fc-4642-baf0-20fd540d4ca0",
+      "createdAt": "2024-05-21T04:32:53.739Z",
+      "finishedAt": "2024-05-21T04:32:58.120Z",
+      "duration": 4381,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "2bf68b05-4a18-48af-b787-ef8ac5404c99",
+      "clientId": "1f4c9ed5-62fc-4642-baf0-20fd540d4ca0",
+      "createdAt": "2024-05-21T04:57:28.312Z",
+      "finishedAt": "2024-05-21T04:57:33.634Z",
+      "duration": 5322,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "f81ce3fd-9588-41fc-ace2-70cf7642f3a4",
+      "clientId": "1f4c9ed5-62fc-4642-baf0-20fd540d4ca0",
+      "createdAt": "2024-05-21T04:58:08.541Z",
+      "finishedAt": "2024-05-21T04:58:14.652Z",
+      "duration": 6111,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "b5d221a8-6bf1-4382-a4f5-a7e7e46b1d6a",
+      "clientId": "1f4c9ed5-62fc-4642-baf0-20fd540d4ca0",
+      "createdAt": "2024-05-21T04:59:23.488Z",
+      "finishedAt": "2024-05-21T04:59:29.363Z",
+      "duration": 5875,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "a424e24e-fad4-431b-8c2a-edd521073016",
+      "clientId": "1f4c9ed5-62fc-4642-baf0-20fd540d4ca0",
+      "createdAt": "2024-05-21T05:00:52.287Z",
+      "finishedAt": null,
+      "duration": 0,
+      "status": "pending",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "db934fde-eb01-456a-98c6-8a2f2eb0cdbd",
+      "clientId": "1f4c9ed5-62fc-4642-baf0-20fd540d4ca0",
+      "createdAt": "2024-05-21T05:01:56.622Z",
+      "finishedAt": "2024-05-21T05:01:59.511Z",
+      "duration": 2889,
+      "status": "cancelled",
+      "tool": "quality"
+    },
+    {
+      "id": "67195e80-c8b0-430e-93c7-c2125482ef89",
+      "clientId": "1f4c9ed5-62fc-4642-baf0-20fd540d4ca0",
+      "createdAt": "2024-05-21T05:02:03.026Z",
+      "finishedAt": "2024-05-21T05:02:08.364Z",
+      "duration": 5338,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "79b98e99-65c7-4276-8fdf-ec93394a6cff",
+      "clientId": "1f4c9ed5-62fc-4642-baf0-20fd540d4ca0",
+      "createdAt": "2024-05-21T05:02:36.663Z",
+      "finishedAt": "2024-05-21T05:02:40.680Z",
+      "duration": 4017,
+      "status": "success",
+      "tool": "test-cases-generation"
+    },
+    {
+      "id": "3e620444-6f51-48a0-ba3c-1496b21fa138",
+      "clientId": "1f4c9ed5-62fc-4642-baf0-20fd540d4ca0",
+      "createdAt": "2024-05-21T05:03:30.166Z",
+      "finishedAt": "2024-05-21T05:03:31.750Z",
+      "duration": 1584,
+      "status": "success",
+      "tool": "translate"
+    },
+    {
+      "id": "352cc017-c56e-470a-8655-ebe6500e75e0",
+      "clientId": "1f4c9ed5-62fc-4642-baf0-20fd540d4ca0",
+      "createdAt": "2024-05-21T05:03:31.849Z",
+      "finishedAt": "2024-05-21T05:03:35.016Z",
+      "duration": 3167,
+      "status": "success",
+      "tool": "consistency"
+    },
+    {
+      "id": "2ca78991-66be-4380-b68f-d0cdb3f78de2",
+      "clientId": "1f4c9ed5-62fc-4642-baf0-20fd540d4ca0",
+      "createdAt": "2024-05-21T05:03:32.944Z",
+      "finishedAt": "2024-05-21T05:03:36.394Z",
+      "duration": 3450,
+      "status": "success",
+      "tool": "toxic"
+    },
+    {
+      "id": "26eb1945-32b2-4971-9623-7177de8fa99d",
+      "clientId": "1f4c9ed5-62fc-4642-baf0-20fd540d4ca0",
+      "createdAt": "2024-05-21T05:03:34.063Z",
+      "finishedAt": "2024-05-21T05:03:38.130Z",
+      "duration": 4067,
+      "status": "success",
+      "tool": "quality"
     }
   ]
 }

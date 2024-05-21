@@ -1,6 +1,6 @@
 const { parentPort, workerData } = require("worker_threads");
 
-const computeSimilarities = ({ concurTCs, reqTestCaseLevel, existingTestCasesByWords, existingTestCasesLookup, similarityThreshold, signalNames }) => {
+const computeSimilarities = ({ concurTCs, reqTestCaseLevel, existingTestCasesByWords, existingTestCasesLookup, similarityThreshold, signalUsedNames }) => {
   try {
     const groups = new Map();
 
@@ -32,12 +32,12 @@ const computeSimilarities = ({ concurTCs, reqTestCaseLevel, existingTestCasesByW
         const unionSize = currentDescriptionWords.size + existingDescriptionWords.size - intersectionSize;
         let similarity = intersectionSize / unionSize;
         let numberSimilarity = 0;
-        let signalNameSimilarity = 0;
+        let signalUsedNamesimilarity = 0;
 
         const numberMatches = currentDescriptionNumbers.filter((num) => existingDescriptionWords.has(num.toString()));
-        const signalNameMatches = signalNames.filter((signalName) => existingDescriptionWords.has(signalName));
+        const signalNameMatches = signalUsedNames.filter((signalName) => existingDescriptionWords.has(signalName));
 
-        if (currentDescriptionNumbers.length > 0 && numberMatches.length === 0 && signalNames.length > 0 && signalNameMatches.length === 0) continue;
+        if (currentDescriptionNumbers.length > 0 && numberMatches.length === 0 && signalUsedNames.length > 0 && signalNameMatches.length === 0) continue;
 
         if (numberMatches.length > 0) {
           similarity = 1;
@@ -46,21 +46,21 @@ const computeSimilarities = ({ concurTCs, reqTestCaseLevel, existingTestCasesByW
 
         if (signalNameMatches.length > 0) {
           similarity = 1;
-          signalNameSimilarity = signalNameMatches.length;
+          signalUsedNamesimilarity = signalNameMatches.length;
         }
 
         if (similarity < similarityThreshold) continue;
 
         const group = groups.get(index) || [];
         visited.set(id, true);
-        group.push({ id, similarity, numberSimilarity, signalNameSimilarity });
+        group.push({ id, similarity, numberSimilarity, signalUsedNamesimilarity });
         group.sort((a, b) => {
           if (b.similarity === a.similarity) {
-            if (a.signalNameSimilarity === b.signalNameSimilarity) {
+            if (a.signalUsedNamesimilarity === b.signalUsedNamesimilarity) {
               return b.numberSimilarity - a.numberSimilarity;
             }
 
-            return b.signalNameSimilarity - a.signalNameSimilarity;
+            return b.signalUsedNamesimilarity - a.signalUsedNamesimilarity;
           }
 
           return b.similarity - a.similarity;

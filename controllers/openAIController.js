@@ -189,11 +189,18 @@ exports.deleteQueueItem = catchAsync(async (req, res, next) => {
 });
 
 exports.getCompleteResults = catchAsync(async (req, res, next) => {
+  const { tool } = req.query;
   const { clientId } = req.client;
+
+  let results = finishedRequests.get(clientId);
+
+  if (tool != null) {
+    results = results.filter((item) => item.tool === tool);
+  }
 
   res.status(200).json({
     status: "success",
-    data: finishedRequests.get(clientId),
+    data: results,
   });
 });
 

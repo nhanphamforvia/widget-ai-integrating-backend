@@ -48,6 +48,8 @@ exports.useQueueFactory = () => {
     jobData.status = QUEUE_ITEM_STATES.PENDING;
     jobData.progress = 0;
     queue.enqueue(jobData);
+
+    return queue.getLength();
   };
 
   const finishRequest = (itemToFinish) => {

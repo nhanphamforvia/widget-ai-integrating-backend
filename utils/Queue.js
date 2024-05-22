@@ -50,6 +50,10 @@ class Queue {
   printQueue() {
     console.log(this.items);
   }
+
+  getLength() {
+    return this.items.length;
+  }
 }
 
 module.exports = Queue;

@@ -100,7 +100,7 @@ exports.chatCompletion = catchAsync(async (req, res, next) => {
     tool,
   });
 
-  subscribeToQueue({
+  const queueLength = subscribeToQueue({
     sessionId: session.id,
     clientId,
     data,
@@ -118,6 +118,7 @@ exports.chatCompletion = catchAsync(async (req, res, next) => {
       sessionId: session.id,
       clientId: clientId,
       tool,
+      queueLength,
     },
   });
 });

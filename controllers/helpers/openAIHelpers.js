@@ -488,7 +488,6 @@ const consultAIForTestCasesGeneration = async ({ requirementData, signalsUsed, p
 
     return selectOutputDefinedTestCasesData([parseSingleTestCase(testCaseOptionsStr)]);
   } catch (err) {
-    console.log("Error: ", err);
     throw err;
   }
 };

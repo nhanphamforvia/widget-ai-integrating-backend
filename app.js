@@ -11,6 +11,7 @@ const docIntelRoutes = require("./routes/docIntelRoutes");
 const historyRoutes = require("./routes/historyRoutes");
 const promptsRoutes = require("./routes/promptRoutes");
 const authRoutes = require("./routes/authRoutes");
+const morgan = require("morgan");
 
 const app = express();
 
@@ -32,8 +33,13 @@ app.options(
   })
 );
 
-// Serve
+// Serving static files
 app.use(express.static(path.join(__dirname, "public")));
+
+// Development logging
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
 
 // Transfer data to process
 app.use(express.json({ limit: "50mb" }));

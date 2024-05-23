@@ -192,9 +192,9 @@ exports.getCompleteResults = catchAsync(async (req, res, next) => {
   const { tool } = req.query;
   const { clientId } = req.client;
 
-  let results = finishedRequests.get(clientId);
+  let results = finishedRequests.get(clientId) || [];
 
-  if (tool != null) {
+  if (tool != null && results) {
     results = results.filter((item) => item.tool === tool);
   }
 

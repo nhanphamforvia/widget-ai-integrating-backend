@@ -473,6 +473,8 @@ const consultAIForTestCasesGeneration = async ({ requirementData, signalsUsed, p
 
     const testCaseOptionsStr = resData.data?.[0];
 
+    console.log(testCaseOptionsStr);
+
     const consultError = Object.values(GENERATE_ERRORS).find((value) => {
       return testCaseOptionsStr.includes(value);
     });
@@ -716,6 +718,7 @@ const checkExistOrCreateTestCases = async ({
       matchedTCs,
     };
   } catch (err) {
+    console.log(err);
     throw err;
   }
 };
@@ -789,6 +792,7 @@ exports.useChatCompletionForTestCaseGeneration = async (
       errors,
     };
   } catch (err) {
+    console.log(err);
     throw err;
   }
 };

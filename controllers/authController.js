@@ -6,17 +6,24 @@ const catchAsync = require("../utils/catchAsync");
 
 const USER_CODES = new Map([
   [
-    process.env.USER_CODE_NHAN,
-    {
-      name: "Nhan",
-      role: "Developer",
-    },
-  ],
-  [
     process.env.USER_CODE_NEVRES,
     {
       name: "Nevres",
       role: "Stakeholder",
+    },
+  ],
+  [
+    process.env.USER_CODE_TRAM,
+    {
+      name: "Tram",
+      role: "Developer",
+    },
+  ],
+  [
+    process.env.USER_CODE_NHAN,
+    {
+      name: "Nhan",
+      role: "Developer",
     },
   ],
 ]);

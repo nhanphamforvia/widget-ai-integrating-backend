@@ -19,10 +19,16 @@ const STATUS = {
 
 exports.STATUS = STATUS;
 
-const isValidStatus = (status) =>
-  Object.values(STATUS).some((allowedValue) => {
-    return status === allowedValue;
+const isValidStatus = (status) => {
+  const validStatusNames = Object.values(STATUS);
+  const filteredStatus = status.split(",");
+
+  return filteredStatus.every((status) => {
+    return validStatusNames.some((allowedValue) => {
+      return status === allowedValue;
+    });
   });
+};
 
 const getQueryObject = (query) => {
   return Object.entries(query).filter(([key, _]) => FILTER_QUERY_FIELDS.has(key));
@@ -30,7 +36,7 @@ const getQueryObject = (query) => {
 
 const filterSessionsByFields = (sessions, queryObj) => {
   return sessions.filter((session) => {
-    return queryObj.every(([key, value]) => session[key] == value);
+    return queryObj.every(([key, value]) => value.split(",").includes(session[key]));
   });
 };
 

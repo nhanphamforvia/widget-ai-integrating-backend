@@ -397,12 +397,14 @@ const parseSingleTestCase = (testCaseOptionsStr) => {
   // Extract relevant information from the input string
   const titleMatch = testCaseOptionsStr.match(/Title: (.+)/);
   const descriptionMatch = testCaseOptionsStr.match(/Description: (.+)/);
+  const designMatch = testCaseOptionsStr.match(/Design:\s*{{\s*(.+?)\s*}}/s);
   const outputDefinedMatch = testCaseOptionsStr.match(/OutputDefined:\s*(true|false|True|False|TRUE|FALSE)\b/);
 
   // Create an object with the extracted properties
   const parsedData = {
     title: titleMatch ? titleMatch[1].trim() : "",
     description: descriptionMatch ? descriptionMatch[1].trim() : "",
+    design: designMatch ? designMatch[1].trim() : "",
   };
 
   if (outputDefinedMatch) {
@@ -424,7 +426,7 @@ const parseTextToArrayOfTestCases = (testCaseOptionsStr) => {
 
 const selectOutputDefinedTestCasesData = (testCasesData) => {
   return testCasesData.reduce((definedTestCases, testCaseData) => {
-    const { outputDefined, title, description } = testCaseData;
+    const { outputDefined, title, description, design } = testCaseData;
 
     if (outputDefined === false) {
       return definedTestCases;
@@ -435,6 +437,7 @@ const selectOutputDefinedTestCasesData = (testCasesData) => {
       {
         title: title,
         description: description,
+        design: design,
       },
     ];
   }, []);
@@ -473,7 +476,7 @@ const consultAIForTestCasesGeneration = async ({ requirementData, signalsUsed, p
 
     const testCaseOptionsStr = resData.data?.[0];
 
-    console.log(testCaseOptionsStr);
+    // console.log(testCaseOptionsStr);
 
     const consultError = Object.values(GENERATE_ERRORS).find((value) => {
       return testCaseOptionsStr.includes(value);
@@ -691,6 +694,8 @@ const checkExistOrCreateTestCases = async ({
       role,
       abortController,
     });
+
+    console.log(testCasesData);
 
     const { H_TestLevelByArtURILookup } = testLevelsData;
     const reqTestCaseLevel = H_TestLevelByArtURILookup[requirementData.typeRdfUri];

@@ -18,7 +18,9 @@ const {
   updateItemProgress,
   getNextConcurrentRequest,
 } = useQueueFactory();
-const { getResultsByClientID, addResultToStorage, removeResultByClientIDAndSessionID } = useStorageFactory();
+const { getResultsByClientID, addResultToStorage, removeResultByClientIDAndSessionID, startSevenDayPeriodCleanup } = useStorageFactory();
+
+startSevenDayPeriodCleanup();
 
 const resetStateAndProcessNext = () => {
   resetServiceState();

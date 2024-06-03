@@ -234,8 +234,6 @@ exports.updateSession = async (sessionId, { status = null, ...otherProps }) => {
     session[key] = value;
   });
 
-  console.log(session);
-
   historyDb.scheduleWrite();
 
   return session;

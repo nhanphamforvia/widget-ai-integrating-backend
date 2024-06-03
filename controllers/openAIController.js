@@ -1,6 +1,7 @@
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 const { useQueueFactory, checkBusy } = require("./serviceQueueFactory");
+const { useStorageFactory } = require("./useStorageFactory");
 const { updateSession, createSession, deleteSession, getSession, STATUS } = require("../data/history/historyOperators");
 const { useChatCompletionForConsistency, useChatCompletionForIndividualItem, useChatCompletionForTestCaseGeneration } = require("./helpers/openAIHelpers");
 
@@ -17,9 +18,9 @@ const {
   updateItemProgress,
   getNextConcurrentRequest,
 } = useQueueFactory();
-const finishedRequests = new Map();
+const { getResultsByClientID, addResultToStorage, removeResultByClientIDAndSessionID } = useStorageFactory();
 
-const finishRequestAndProcessNext = () => {
+const resetStateAndProcessNext = () => {
   resetServiceState();
   processNextRequests();
 };
@@ -52,7 +53,7 @@ const processNextRequests = async () => {
         });
       }
 
-      finishRequestAndProcessNext();
+      resetStateAndProcessNext();
       break;
     }
 
@@ -65,7 +66,7 @@ const processNextRequests = async () => {
         error: "The input data in request is missing either 'artifacts' or 'dngWorkspace' property",
       });
 
-      finishRequestAndProcessNext();
+      resetStateAndProcessNext();
     }
 
     const progressHandler = ({ processId, currentIndex, totalIndices }) => {
@@ -98,7 +99,7 @@ const processNextRequests = async () => {
     const session = await getSession(sessionId);
 
     if (session.status === STATUS.CANCELLED) {
-      finishRequestAndProcessNext();
+      resetStateAndProcessNext();
 
       break;
     }
@@ -106,20 +107,9 @@ const processNextRequests = async () => {
     await updateSession(sessionId, { status: STATUS.SUCCESS });
     finishRequest(request);
 
-    const doneRequestsForClientId = finishedRequests.get(clientId) || [];
-    finishedRequests.set(clientId, [
-      ...doneRequestsForClientId,
-      {
-        requestedAt,
-        sessionId,
-        data,
-        errors,
-        tool,
-        dngWorkspace,
-      },
-    ]);
+    addResultToStorage(clientId, { requestedAt, sessionId, data, errors, tool, dngWorkspace });
 
-    finishRequestAndProcessNext();
+    resetStateAndProcessNext();
   }
 };
 
@@ -226,7 +216,7 @@ exports.getCompleteResults = catchAsync(async (req, res, next) => {
   const { tool } = req.query;
   const { clientId } = req.client;
 
-  let results = finishedRequests.get(clientId) || [];
+  let results = getResultsByClientID(clientId);
 
   if (tool != null && results) {
     results = results.filter((item) => item.tool === tool);
@@ -242,8 +232,7 @@ exports.deleteResult = catchAsync(async (req, res, next) => {
   const { clientId } = req.client;
   const { sessionId } = req.body;
 
-  const finishedReqs = finishedRequests.get(clientId).filter((completion) => completion.sessionId !== sessionId);
-  finishedRequests.set(clientId, finishedReqs);
+  removeResultByClientIDAndSessionID(clientId, sessionId);
 
   res.status(204).json({
     status: "success",

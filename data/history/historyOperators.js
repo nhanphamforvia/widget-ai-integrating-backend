@@ -6,6 +6,7 @@ const moment = require("moment");
 const FILTER_QUERY_FIELDS = new Set(["clientId", "id", "status", "tool"]);
 const SELECT_FIELDS = new Set(["clientId", "id", "status", "createdAt", "finishedAt", "tool"]);
 const SORT_FIELDS = new Set(["status", "tool", "createdAt", "duration"]);
+const SYS_PROPS = new Set(["id", "clientId", "createdAt", "finishedAt", "duration", "status", "tool"]);
 
 const historyDb = new Database(path.resolve(__dirname, "history.json"));
 
@@ -202,12 +203,16 @@ exports.createSession = async ({ clientId, origin, status = STATUS.PENDING, tool
   return session;
 };
 
-exports.updateSession = async (sessionId, { status = null }) => {
+exports.updateSession = async (sessionId, { status = null, ...otherProps }) => {
   const historyData = await historyDb.read();
 
   const session = historyData.sessions.find((session) => {
     return session.id === sessionId;
   });
+
+  if (session == null) {
+    return null;
+  }
 
   if (status === STATUS.DENIED || status === STATUS.ERROR || status === STATUS.SUCCESS || status === STATUS.CANCELLED) {
     finishSession(session);
@@ -222,6 +227,14 @@ exports.updateSession = async (sessionId, { status = null }) => {
 
     session.status = status;
   }
+
+  Object.entries(otherProps).forEach(([key, value]) => {
+    if (SYS_PROPS.has(key)) return;
+
+    session[key] = value;
+  });
+
+  console.log(session);
 
   historyDb.scheduleWrite();
 

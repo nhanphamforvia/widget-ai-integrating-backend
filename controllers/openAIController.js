@@ -19,18 +19,54 @@ const {
 } = useQueueFactory();
 const finishedRequests = new Map();
 
+const finishRequestAndProcessNext = () => {
+  resetServiceState();
+  processNextRequests();
+};
+
+const REQUIRED_REQ_PROPS = ["sessionId", "clientId", "data", "tool", "prompt", "role"];
+
 /* Main function to process requests */
 const processNextRequests = async () => {
   while (true) {
+    if (queue.isEmpty()) break;
     const request = getNextConcurrentRequest();
-    if (request == null || queue.isEmpty()) break;
+
+    if (request == null) break;
 
     commenceQueueProcess(request);
+
+    const missingProps = REQUIRED_REQ_PROPS.reduce((missing, prop) => {
+      if (request[prop] == null) {
+        return [...missing, prop];
+      }
+
+      return missing;
+    }, []);
+
+    if (missingProps?.length) {
+      if (request.sessionId != null) {
+        await updateSession(request.sessionId, {
+          status: STATUS.ERROR,
+          error: `The request is missing the properties: ${missingProps.join(", ")}`,
+        });
+      }
+
+      finishRequestAndProcessNext();
+      break;
+    }
 
     const { sessionId, clientId, data: inputData, tool, prompt, role, requestedAt, abortController } = request;
     const { artifacts, dataForTestCases, dngWorkspace } = inputData;
 
-    // TODO: Check if tool is consistency, make a branch to handle it separately.
+    if (artifacts == null || dngWorkspace == null) {
+      await updateSession(sessionId, {
+        status: STATUS.ERROR,
+        error: "The input data in request is missing either 'artifacts' or 'dngWorkspace' property",
+      });
+
+      finishRequestAndProcessNext();
+    }
 
     const progressHandler = ({ processId, currentIndex, totalIndices }) => {
       const progress = (((currentIndex + 1) / (totalIndices + 1)) * 100).toFixed(2);
@@ -62,10 +98,9 @@ const processNextRequests = async () => {
     const session = await getSession(sessionId);
 
     if (session.status === STATUS.CANCELLED) {
-      resetServiceState(request);
-      processNextRequests();
+      finishRequestAndProcessNext();
 
-      return;
+      break;
     }
 
     await updateSession(sessionId, { status: STATUS.SUCCESS });
@@ -84,8 +119,7 @@ const processNextRequests = async () => {
       },
     ]);
 
-    resetServiceState();
-    processNextRequests();
+    finishRequestAndProcessNext();
   }
 };
 

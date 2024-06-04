@@ -312,25 +312,13 @@ exports.useChatCompletionForIndividualItem = async (artifacts, prompt, role, pro
 const filterSignalsUsedInRequirement = (requirementText, signalNames, signalsWithValues) => {
   return signalNames.reduce((signalsUsed, signalName) => {
     const startIndex = requirementText.indexOf(signalName);
-    // const quoteIndex = requirementText.indexOf('"', startIndex);
-    // const spaceIndex = requirementText.indexOf(" ", startIndex);
-
-    // let endIndex = -1;
-    // if (quoteIndex < 0 && spaceIndex > 0) {
-    //   endIndex = spaceIndex;
-    // } else if (spaceIndex < 0 && quoteIndex > 0) {
-    //   endIndex = quoteIndex;
-    // } else if (spaceIndex > 0 && quoteIndex > 0) {
-    //   endIndex = Math.min(spaceIndex, quoteIndex);
-    // }
-
     const subString = requirementText.slice(startIndex);
     let i = 0;
     let endIndex = 0;
 
     while (!endIndex && i <= subString.length - 1) {
       const char = subString[i];
-      if (char === "_" || (char >= "a" && char <= "z") || (char >= "A" && char <= "Z")) {
+      if (char === "_" || (char >= "a" && char <= "z") || (char >= "A" && char <= "Z") || (char >= "0" && char <= "9")) {
         i++;
         continue;
       }
@@ -394,17 +382,17 @@ const reduceExistingTestCasesToMapOfWords = (existingTestCases) => {
 };
 
 const parseSingleTestCase = (testCaseOptionsStr) => {
-  // Extract relevant information from the input string
-  const titleMatch = testCaseOptionsStr.match(/Title: (.+)/);
-  const descriptionMatch = testCaseOptionsStr.match(/Description: (.+)/);
-  const designMatch = testCaseOptionsStr.match(/Design:\s*{{\s*(.+?)\s*}}/s);
+  const lines = testCaseOptionsStr?.trim().split("\n");
+  const title = lines[0]?.replace("Title: ", "") || "";
+  const description = lines[1]?.replace("Description: ", "") || "";
+  const design = lines.slice(2).join("\n").replace("Design:", "").trim();
+
   const outputDefinedMatch = testCaseOptionsStr.match(/OutputDefined:\s*(true|false|True|False|TRUE|FALSE)\b/);
 
-  // Create an object with the extracted properties
   const parsedData = {
-    title: titleMatch ? titleMatch[1].trim() : "",
-    description: descriptionMatch ? descriptionMatch[1].trim() : "",
-    design: designMatch ? designMatch[1].trim() : "",
+    title,
+    description,
+    design,
   };
 
   if (outputDefinedMatch) {
@@ -421,7 +409,7 @@ const parseTextToArrayOfTestCases = (testCaseOptionsStr) => {
     return parseSingleTestCase(str);
   });
 
-  return testCases.filter((data) => data.title !== "" && data.description !== "");
+  return testCases.filter((data) => data.title !== "" && data.description !== "" && data.title != null && data.description != null);
 };
 
 const selectOutputDefinedTestCasesData = (testCasesData) => {
@@ -475,8 +463,7 @@ const consultAIForTestCasesGeneration = async ({ requirementData, signalsUsed, p
     }
 
     const testCaseOptionsStr = resData.data?.[0];
-
-    // console.log(testCaseOptionsStr);
+    console.log(testCaseOptionsStr);
 
     const consultError = Object.values(GENERATE_ERRORS).find((value) => {
       return testCaseOptionsStr.includes(value);

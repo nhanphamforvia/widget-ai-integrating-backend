@@ -18,9 +18,10 @@ const {
   updateItemProgress,
   getNextConcurrentRequest,
 } = useQueueFactory();
-const { getResultsByClientID, addResultToStorage, removeResultByClientIDAndSessionID, startSevenDayPeriodCleanup } = useStorageFactory();
+const { getResultsByClientID, addResultToStorage, removeResultByClientIDAndSessionID, startCleanupAfterDays } = useStorageFactory();
 
-startSevenDayPeriodCleanup();
+const daysToCleanUp = 7;
+startCleanupAfterDays({ daysToCleanUp });
 
 const resetStateAndProcessNext = () => {
   resetServiceState();
@@ -109,7 +110,7 @@ const processNextRequests = async () => {
     await updateSession(sessionId, { status: STATUS.SUCCESS });
     finishRequest(request);
 
-    addResultToStorage(clientId, { requestedAt, sessionId, data, errors, tool, dngWorkspace });
+    await addResultToStorage(clientId, { requestedAt, sessionId, data, errors, tool, dngWorkspace });
 
     resetStateAndProcessNext();
   }
@@ -218,7 +219,7 @@ exports.getCompleteResults = catchAsync(async (req, res, next) => {
   const { tool } = req.query;
   const { clientId } = req.client;
 
-  let results = getResultsByClientID(clientId);
+  let results = await getResultsByClientID(clientId);
 
   if (tool != null && results) {
     results = results.filter((item) => item.tool === tool);
@@ -234,7 +235,7 @@ exports.deleteResult = catchAsync(async (req, res, next) => {
   const { clientId } = req.client;
   const { sessionId } = req.body;
 
-  removeResultByClientIDAndSessionID(clientId, sessionId);
+  await removeResultByClientIDAndSessionID(clientId, sessionId);
 
   res.status(204).json({
     status: "success",

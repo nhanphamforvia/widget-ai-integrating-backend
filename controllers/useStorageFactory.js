@@ -1,17 +1,35 @@
+const fs = require("fs").promises;
+const path = require("path");
+
+const createFileName = (clientId) => {
+  return path.join(__dirname, "..", "data", "results", `${clientId}.json`);
+};
+
 exports.useStorageFactory = () => {
   const results = new Map();
 
-  const SEVEN_DAYS_OFFSET = 7 * 24 * 60 * 60 * 1000;
-  const TWELVE_HRS_OFFSET = 12 * 60 * 60 * 1000;
+  const ONE_DAY_OFFSET = 24 * 60 * 60 * 1000;
+  const TWELVE_HRS_OFFSET = ONE_DAY_OFFSET / 2;
 
-  const getResultsByClientID = (clientId) => {
-    return results.get(clientId) || [];
+  const getResultsByClientID = async (clientId) => {
+    try {
+      const file = await fs.readFile(createFileName(clientId));
+      if (file == null) return [];
+
+      return JSON.parse(file);
+    } catch (err) {
+      if (err.errno == "-4058" && err.code == "ENOENT") {
+        return [];
+      }
+
+      throw err;
+    }
   };
 
-  const addResultToStorage = (clientId, { requestedAt, sessionId, data, errors, tool, dngWorkspace }) => {
-    const doneRequestsForClientId = getResultsByClientID(clientId);
+  const addResultToStorage = async (clientId, { requestedAt, sessionId, data, errors, tool, dngWorkspace }) => {
+    const doneRequestsForClientId = await getResultsByClientID(clientId);
 
-    results.set(clientId, [
+    const addedRequests = [
       ...doneRequestsForClientId,
       {
         requestedAt,
@@ -21,27 +39,20 @@ exports.useStorageFactory = () => {
         tool,
         dngWorkspace,
       },
-    ]);
+    ];
+
+    await fs.writeFile(createFileName(clientId), JSON.stringify(addedRequests, null, 2));
   };
 
-  const removeResultByClientIDAndSessionID = (clientId, sessionId) => {
-    const finishedReqs = getResultsByClientID(clientId).filter((completion) => completion.sessionId !== sessionId);
-    results.set(clientId, finishedReqs);
+  const removeResultByClientIDAndSessionID = async (clientId, sessionId) => {
+    const finishedReqs = (await getResultsByClientID(clientId)).filter((completion) => completion.sessionId !== sessionId);
+    await fs.writeFile(createFileName(clientId), JSON.stringify(finishedReqs, null, 2));
   };
 
-  const removeOldResults = () => {
-    const sevenDaysAgo = new Date(new Date().getTime() - SEVEN_DAYS_OFFSET); // 7 days in milliseconds
-
-    results.forEach((value, clientId) => {
-      const updatedResults = value.filter((completion) => new Date(completion.requestedAt) >= sevenDaysAgo);
-      results.set(clientId, updatedResults);
-    });
-  };
-
-  const startSevenDayPeriodCleanup = () => {
+  const startCleanupAfterDays = ({ daysToCleanUp = 7 }) => {
     // Run the removal function periodically (e.g., twice a day)
-    setInterval(removeOldResults, TWELVE_HRS_OFFSET); // 12 hours in milliseconds
+    // Todo
   };
 
-  return { getResultsByClientID, addResultToStorage, removeResultByClientIDAndSessionID, startSevenDayPeriodCleanup };
+  return { getResultsByClientID, addResultToStorage, removeResultByClientIDAndSessionID, startCleanupAfterDays };
 };

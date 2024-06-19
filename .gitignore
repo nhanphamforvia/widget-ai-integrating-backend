@@ -5,3 +5,4 @@ server.key
 server.pfx
 server.pass
 history.json
+results/*.json

@@ -6,8 +6,6 @@ const createFileName = (clientId) => {
 };
 
 exports.useStorageFactory = () => {
-  const results = new Map();
-
   const ONE_DAY_OFFSET = 24 * 60 * 60 * 1000;
   const TWELVE_HRS_OFFSET = ONE_DAY_OFFSET / 2;
 
